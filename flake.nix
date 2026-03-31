@@ -11,6 +11,7 @@
     ...
   }: let
     lib = nixpkgs.lib;
+    dependencies = import ./pkgs/dependencies.nix;
     systems = [
       "aarch64-linux"
       "x86_64-linux"
@@ -29,6 +30,12 @@
       "vscode-firefox-debug"
       "zsh-yarn-autocompletions"
     ];
+    neovimPluginNames = [
+      "jj-diffconflicts"
+      "screenkey"
+      "tiny-inline-diagnostic"
+      "ts-error-translator"
+    ];
     mkPkgs = system:
       import nixpkgs {
         inherit system;
@@ -39,6 +46,10 @@
           ];
       };
   in {
+    lib = {
+      neovimPlugins = lib.genAttrs neovimPluginNames (name: dependencies.${name});
+    };
+
     overlays.default = import ./pkgs/overlay.nix;
 
     formatter = forEachSystem (system: (mkPkgs system).alejandra);

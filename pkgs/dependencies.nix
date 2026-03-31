@@ -38,37 +38,6 @@
     };
     version = "1.4.0";
   };
-  github-copilot-cli = {
-    source = {
-      "aarch64-darwin" = {
-        hash = "sha256-jc8Xffia3ziSLl6Jqnlcw96St8YnkSLG5gfB4YuXUo8=";
-        url = "https://registry.npmjs.org/@github/copilot-darwin-arm64/-/copilot-darwin-arm64-1.0.11.tgz";
-      };
-      "aarch64-linux" = {
-        hash = "sha256-ged8femY0dW08IHcr7SumtLlf5aqpWqQb9Z+6TDduyY=";
-        url = "https://registry.npmjs.org/@github/copilot-linux-arm64/-/copilot-linux-arm64-1.0.11.tgz";
-      };
-      "x86_64-darwin" = {
-        hash = "sha256-NjqmWe8OD9HLgfhXbOh6sydzL5RZ1bwogDoIF7Q7z7Y=";
-        url = "https://registry.npmjs.org/@github/copilot-darwin-x64/-/copilot-darwin-x64-1.0.11.tgz";
-      };
-      "x86_64-linux" = {
-        hash = "sha256-u63lQJ1v+AxG8ux6sCxxSm44VIY2SYU95B1pKgIf4Jg=";
-        url = "https://registry.npmjs.org/@github/copilot-linux-x64/-/copilot-linux-x64-1.0.11.tgz";
-      };
-    };
-    update = {
-      packageId = "@github/copilot";
-      sourcePackages = {
-        "aarch64-darwin" = "@github/copilot-darwin-arm64";
-        "aarch64-linux" = "@github/copilot-linux-arm64";
-        "x86_64-darwin" = "@github/copilot-darwin-x64";
-        "x86_64-linux" = "@github/copilot-linux-x64";
-      };
-      strategy = "npm-registry-release";
-    };
-    version = "1.0.11";
-  };
   gh-workflow-stats = {
     source = {
       hash = "sha256-DTVthvrOKVJbEsL1fQd71vjHluxK6WadahlpPx/sfV4=";
@@ -88,6 +57,49 @@
     };
     vendorHash = "sha256-DuuS3VvKJwOJzBQ7cYlcYmqMbmMbiYHd7ZjhylhXnIg=";
     version = "0.4.1";
+  };
+  github-copilot-cli = {
+    source = {
+      aarch64-darwin = {
+        hash = "sha256-jc8Xffia3ziSLl6Jqnlcw96St8YnkSLG5gfB4YuXUo8=";
+        url = "https://registry.npmjs.org/@github/copilot-darwin-arm64/-/copilot-darwin-arm64-1.0.11.tgz";
+      };
+      aarch64-linux = {
+        hash = "sha256-ged8femY0dW08IHcr7SumtLlf5aqpWqQb9Z+6TDduyY=";
+        url = "https://registry.npmjs.org/@github/copilot-linux-arm64/-/copilot-linux-arm64-1.0.11.tgz";
+      };
+      x86_64-darwin = {
+        hash = "sha256-NjqmWe8OD9HLgfhXbOh6sydzL5RZ1bwogDoIF7Q7z7Y=";
+        url = "https://registry.npmjs.org/@github/copilot-darwin-x64/-/copilot-darwin-x64-1.0.11.tgz";
+      };
+      x86_64-linux = {
+        hash = "sha256-u63lQJ1v+AxG8ux6sCxxSm44VIY2SYU95B1pKgIf4Jg=";
+        url = "https://registry.npmjs.org/@github/copilot-linux-x64/-/copilot-linux-x64-1.0.11.tgz";
+      };
+    };
+    update = {
+      packageId = "@github/copilot";
+      sourcePackages = {
+        aarch64-darwin = "@github/copilot-darwin-arm64";
+        aarch64-linux = "@github/copilot-linux-arm64";
+        x86_64-darwin = "@github/copilot-darwin-x64";
+        x86_64-linux = "@github/copilot-linux-x64";
+      };
+      strategy = "npm-registry-release";
+    };
+    version = "1.0.11";
+  };
+  jj-diffconflicts = {
+    source = {
+      hash = "sha256-CDLOo07tGOg/7Sowb1d39k9Nq/RW50axGj8L1D3Be70=";
+      owner = "rafikdraoui";
+      repo = "jj-diffconflicts";
+      rev = "58163ae8fe7646179dfd7741206dd9a2b4cdadc0";
+    };
+    update = {
+      branch = "main";
+      strategy = "github-branch";
+    };
   };
   playwright-cli = {
     npmDepsHash = "sha256-4x3ozVrST6LtLoHl9KtmaOKrkYwCK84fwEREaoNaESc=";
@@ -109,6 +121,21 @@
     };
     version = "0.1.1";
   };
+  screenkey = {
+    source = {
+      hash = "sha256-EGyIkWcQbCurkBbeHpXvQAKRTovUiNx1xqtXmQba8Gg=";
+      owner = "NStefan002";
+      repo = "screenkey.nvim";
+      rev = "v2.4.2";
+    };
+    update = {
+      strategy = "github-release";
+      version = {
+        stripPrefix = "v";
+      };
+    };
+    version = "2.4.2";
+  };
   skills-ref = {
     source = {
       hash = "sha256-/eU1gsQjnpWdwl+h9NygGcWLX2JIJZWbRiWeHm55Gnw=";
@@ -122,6 +149,33 @@
       strategy = "github-branch";
     };
     version = "0.1.0";
+  };
+  tiny-inline-diagnostic = {
+    source = {
+      hash = "sha256-ggpNNyo1ir68N4G+sqXi7uAF+QNiQDQhPrion4f7EGY=";
+      owner = "rachartier";
+      repo = "tiny-inline-diagnostic.nvim";
+      rev = "ccb67504f93b20f36775d3aad620f9dc9ed98bd9";
+    };
+    update = {
+      branch = "main";
+      strategy = "github-branch";
+    };
+  };
+  ts-error-translator = {
+    source = {
+      hash = "sha256-fi68jJVNTL2WlTehcl5Q8tijAeu2usjIsWXjcuixkCM=";
+      owner = "dmmulroy";
+      repo = "ts-error-translator.nvim";
+      rev = "v1.2.0";
+    };
+    update = {
+      strategy = "github-release";
+      version = {
+        stripPrefix = "v";
+      };
+    };
+    version = "1.2.0";
   };
   vscode-firefox-debug = {
     npmDepsHash = "sha256-Zy+ubEFL9e712bvDBf5MPF41qnynYUbcDoejW6O8+9Y=";

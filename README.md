@@ -33,18 +33,6 @@ Or build a package directly:
 nix build .#github-copilot-cli
 ```
 
-## Packages
-
-- `dotnet-counters`
-- `dotnet-trace`
-- `findreplacecode`
-- `gh-workflow-stats`
-- `github-copilot-cli`
-- `playwright-cli`
-- `skills-ref`
-- `vscode-firefox-debug`
-- `zsh-yarn-autocompletions`
-
 ## Maintenance
 
 - `scripts/update-dependencies.cs` refreshes pinned upstream metadata in `pkgs/dependencies.nix`.
