@@ -54,7 +54,7 @@ jobs:
         run: nix build .#default --print-out-paths | tee /tmp/static-nix-cache-paths.txt
 
       - name: Save Nix binary
-        uses: adampoit/static-nix-cache/save@986776d29acbd428597c314fa0a02abebd403cea
+        uses: adampoit/static-nix-cache/save@6df39676383b29458fd62852df758da6b46005c7
         with:
           paths-file: /tmp/static-nix-cache-paths.txt
           name: ${{ matrix.name }}
@@ -73,7 +73,7 @@ jobs:
         uses: nixbuild/nix-quick-install-action@v34
 
       - name: Generate Linux cache site
-        uses: adampoit/static-nix-cache/deploy@986776d29acbd428597c314fa0a02abebd403cea
+        uses: adampoit/static-nix-cache/deploy@6df39676383b29458fd62852df758da6b46005c7
         with:
           artifact-pattern: static-nix-cache-linux
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -81,7 +81,7 @@ jobs:
           static: ./site/linux
 
       - name: Generate Darwin cache site
-        uses: adampoit/static-nix-cache/deploy@986776d29acbd428597c314fa0a02abebd403cea
+        uses: adampoit/static-nix-cache/deploy@6df39676383b29458fd62852df758da6b46005c7
         with:
           artifact-pattern: static-nix-cache-darwin
           github-token: ${{ secrets.GITHUB_TOKEN }}
