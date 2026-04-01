@@ -205,8 +205,29 @@ static bool ApplyGitHubReleaseUpdate(DependencyEntry entry, string workingDirect
 
 static JsonObject GetLatestGitHubRelease(string owner, string repo, string workingDirectory)
 {
-	var output = RunAndCapture("gh", [$"api", $"repos/{owner}/{repo}/releases/latest"], workingDirectory);
-	return JsonNode.Parse(output) as JsonObject ?? throw new Exception($"Expected GitHub release payload for {owner}/{repo}");
+	var result = RunProcess("gh", ["api", $"repos/{owner}/{repo}/releases/latest"], workingDirectory);
+	if (result.ExitCode == 0)
+	{
+		return JsonNode.Parse(result.StdOut) as JsonObject ?? throw new Exception($"Expected GitHub release payload for {owner}/{repo}");
+	}
+
+	if (result.StdErr.Contains("HTTP 404", StringComparison.Ordinal))
+	{
+		return new JsonObject
+		{
+			["tag_name"] = GetLatestGitHubTag(owner, repo, workingDirectory),
+		};
+	}
+
+	throw new Exception($"Command failed: gh api repos/{owner}/{repo}/releases/latest{Environment.NewLine}{result.StdErr}".TrimEnd());
+}
+
+static string GetLatestGitHubTag(string owner, string repo, string workingDirectory)
+{
+	var output = RunAndCapture("gh", ["api", $"repos/{owner}/{repo}/tags?per_page=1"], workingDirectory);
+	var tags = JsonNode.Parse(output) as JsonArray ?? throw new Exception($"Expected GitHub tags payload for {owner}/{repo}");
+	var tag = tags[0] as JsonObject ?? throw new Exception($"Expected at least one GitHub tag for {owner}/{repo}");
+	return tag["name"]?.GetValue<string>() ?? throw new Exception($"Missing tag name for {owner}/{repo}");
 }
 
 static string GetGitHubBranchHead(string owner, string repo, string branch, string workingDirectory)

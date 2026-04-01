@@ -178,12 +178,12 @@
     version = "1.2.0";
   };
   vscode-firefox-debug = {
-    npmDepsHash = "sha256-Zy+ubEFL9e712bvDBf5MPF41qnynYUbcDoejW6O8+9Y=";
+    npmDepsHash = "sha256-Gqdj+i/4mQSURi3CmL4kYXaePEkYfZ0ZFVheY+STfz0=";
     source = {
-      hash = "sha256-1Orqok33nwB/5ExEt3oMg+7MsYmWwgAXq0E1cWfuG54=";
+      hash = "sha256-qHlp+V9ZR5yVby56WnSxpf0oWxJYK37Z3WVfv1UujzA=";
       owner = "firefox-devtools";
       repo = "vscode-firefox-debug";
-      rev = "2.9.8";
+      rev = "2.15.0";
     };
     update = {
       hashFields = [
@@ -191,7 +191,7 @@
       ];
       strategy = "github-release";
     };
-    version = "2.9.8";
+    version = "2.15.0";
   };
   zsh-yarn-autocompletions = {
     source = {
