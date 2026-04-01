@@ -53,6 +53,7 @@ jobs:
         run: nix run nixpkgs#alejandra -- pkgs/dependencies.nix
 
       - name: Create pull request
+        id: create-pull-request
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.CREATE_PR_TOKEN }}
@@ -65,3 +66,9 @@ jobs:
             - run `./scripts/update-dependencies.cs`
             - refresh pinned package metadata in `pkgs/dependencies.nix`
           labels: dependencies
+
+      - name: Enable pull request auto-merge
+        if: steps.create-pull-request.outputs.pull-request-number != ''
+        env:
+          GH_TOKEN: ${{ secrets.CREATE_PR_TOKEN }}
+        run: gh pr merge --auto --squash "${{ steps.create-pull-request.outputs.pull-request-url }}"
