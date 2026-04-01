@@ -1,6 +1,6 @@
 {
   dotnet-counters = {
-    nugetSha256 = "sha256-gAexbRzKP/8VPhFy2OqnUCp6ze3CkcWLYR1nUqG71PI=";
+    nugetSha256 = "sha256-AYT06BqaY1IPA8YTlvLNdQQgmslKmZK6tS7s8Lm8Rss=";
     update = {
       hashFields = [
         "nugetSha256"
@@ -11,10 +11,10 @@
         prefix = "8.0.";
       };
     };
-    version = "8.0.510501";
+    version = "8.0.547301";
   };
   dotnet-trace = {
-    nugetSha256 = "sha256-Kt5x8n5Q0T+BaTVufhsyjXbi/BlGKidb97DWSbI6Iq8=";
+    nugetSha256 = "sha256-de+w/XJ9zK8RAVKrdvKzuPv5GOhSH2WCanFGSgyWFuU=";
     update = {
       hashFields = [
         "nugetSha256"
@@ -25,7 +25,7 @@
         prefix = "8.0.";
       };
     };
-    version = "8.0.510501";
+    version = "8.0.547301";
   };
   findreplacecode = {
     nugetSha256 = "sha256-uaTsU2ZfUhHwVgPgeLn5DdQte2dqGOLC3SmQaH8B62c=";
@@ -61,20 +61,20 @@
   github-copilot-cli = {
     source = {
       aarch64-darwin = {
-        hash = "sha256-jc8Xffia3ziSLl6Jqnlcw96St8YnkSLG5gfB4YuXUo8=";
-        url = "https://registry.npmjs.org/@github/copilot-darwin-arm64/-/copilot-darwin-arm64-1.0.11.tgz";
+        hash = "sha256-cb+idpDMqDGmr3KJ/pHGDr7Kt+X0Vzd5ftEY3htP5k8=";
+        url = "https://registry.npmjs.org/@github/copilot-darwin-arm64/-/copilot-darwin-arm64-1.0.14.tgz";
       };
       aarch64-linux = {
-        hash = "sha256-ged8femY0dW08IHcr7SumtLlf5aqpWqQb9Z+6TDduyY=";
-        url = "https://registry.npmjs.org/@github/copilot-linux-arm64/-/copilot-linux-arm64-1.0.11.tgz";
+        hash = "sha256-Q+ghnlu9fWL5tTiZrHo9BmQezU3lL5jQ9Rt+hNZYAz4=";
+        url = "https://registry.npmjs.org/@github/copilot-linux-arm64/-/copilot-linux-arm64-1.0.14.tgz";
       };
       x86_64-darwin = {
-        hash = "sha256-NjqmWe8OD9HLgfhXbOh6sydzL5RZ1bwogDoIF7Q7z7Y=";
-        url = "https://registry.npmjs.org/@github/copilot-darwin-x64/-/copilot-darwin-x64-1.0.11.tgz";
+        hash = "sha256-+t2uFHR+4J9rPIaUjboqHHxC7bnFhaVFbQOoCZKqSBQ=";
+        url = "https://registry.npmjs.org/@github/copilot-darwin-x64/-/copilot-darwin-x64-1.0.14.tgz";
       };
       x86_64-linux = {
-        hash = "sha256-u63lQJ1v+AxG8ux6sCxxSm44VIY2SYU95B1pKgIf4Jg=";
-        url = "https://registry.npmjs.org/@github/copilot-linux-x64/-/copilot-linux-x64-1.0.11.tgz";
+        hash = "sha256-va970FAq/W9WBCFJQx9n7qVedZmT+bnzM+dD/Tj5YFI=";
+        url = "https://registry.npmjs.org/@github/copilot-linux-x64/-/copilot-linux-x64-1.0.14.tgz";
       };
     };
     update = {
@@ -87,7 +87,7 @@
       };
       strategy = "npm-registry-release";
     };
-    version = "1.0.11";
+    version = "1.0.14";
   };
   jj-diffconflicts = {
     source = {
@@ -102,12 +102,12 @@
     };
   };
   playwright-cli = {
-    npmDepsHash = "sha256-4x3ozVrST6LtLoHl9KtmaOKrkYwCK84fwEREaoNaESc=";
+    npmDepsHash = "sha256-MYUFGz+ZhlO6QYMQOwwEr1cJ+NvDvdkLKwZfJBvh6sI=";
     source = {
-      hash = "sha256-Ao3phIPinliFDK04u/V3ouuOfwMDVf/qBUpQPESziFQ=";
+      hash = "sha256-ewydxWKXTZ6+NDaIH5krRcWYdLPsi8O3EEgfapasTXU=";
       owner = "microsoft";
       repo = "playwright-cli";
-      rev = "v0.1.1";
+      rev = "v0.1.3";
     };
     update = {
       hashFields = [
@@ -119,7 +119,7 @@
         stripPrefix = "v";
       };
     };
-    version = "0.1.1";
+    version = "0.1.3";
   };
   screenkey = {
     source = {
@@ -138,10 +138,10 @@
   };
   skills-ref = {
     source = {
-      hash = "sha256-/eU1gsQjnpWdwl+h9NygGcWLX2JIJZWbRiWeHm55Gnw=";
+      hash = "sha256-NH2QFx0IKJlx5H6+Egwcb+ERAMTNHTv+bI+BHPZkWfE=";
       owner = "agentskills";
       repo = "agentskills";
-      rev = "0c61f1efc081cbb1ffe3420f6bbcb5b08920e133";
+      rev = "5e7f3e2c4c9f5464fe342bf2fea72367a914e9b4";
     };
     sourceSubdir = "skills-ref";
     update = {
@@ -152,10 +152,10 @@
   };
   tiny-inline-diagnostic = {
     source = {
-      hash = "sha256-ggpNNyo1ir68N4G+sqXi7uAF+QNiQDQhPrion4f7EGY=";
+      hash = "sha256-cIG8PPcYjJxsTbaeEN/P/D75wou1c1A2+2XkxN1aUPw=";
       owner = "rachartier";
       repo = "tiny-inline-diagnostic.nvim";
-      rev = "ccb67504f93b20f36775d3aad620f9dc9ed98bd9";
+      rev = "ba133b3e932416e4b9507095731a6d7276878fe8";
     };
     update = {
       branch = "main";
@@ -164,10 +164,10 @@
   };
   ts-error-translator = {
     source = {
-      hash = "sha256-fi68jJVNTL2WlTehcl5Q8tijAeu2usjIsWXjcuixkCM=";
+      hash = "sha256-/eLbUkjFpAneMoITdknATvpDjnA5XMUjEKaDq0CG+ys=";
       owner = "dmmulroy";
       repo = "ts-error-translator.nvim";
-      rev = "v1.2.0";
+      rev = "v2.0.1";
     };
     update = {
       strategy = "github-release";
@@ -175,7 +175,7 @@
         stripPrefix = "v";
       };
     };
-    version = "1.2.0";
+    version = "2.0.1";
   };
   vscode-firefox-debug = {
     npmDepsHash = "sha256-Gqdj+i/4mQSURi3CmL4kYXaePEkYfZ0ZFVheY+STfz0=";
