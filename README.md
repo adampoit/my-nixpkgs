@@ -1,10 +1,10 @@
 # my-nixpkgs
 
-Custom Nix packages exported as a flake overlay and package set.
+Personal Nix packages not available in nixpkgs.
 
 ## Usage
 
-Use the overlay in another flake:
+Add to your flake inputs:
 
 ```nix
 {
@@ -13,34 +13,24 @@ Use the overlay in another flake:
   outputs = {nixpkgs, my-nixpkgs, ...}: {
     nixosConfigurations.example = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
-      modules = [
-        {
-          nixpkgs.overlays = [my-nixpkgs.overlays.default];
-          environment.systemPackages = [
-            pkgs.gh-workflow-stats
-            pkgs.playwright-cli
-          ];
-        }
-      ];
+      modules = [{
+        nixpkgs.overlays = [my-nixpkgs.overlays.default];
+        environment.systemPackages = with pkgs; [
+          playwright-cli
+          gh-workflow-stats
+        ];
+      }];
     };
   };
 }
 ```
 
-Or build a package directly:
+Or run directly without installing:
 
 ```bash
-nix build .#github-copilot-cli
+nix run github:adampoit/my-nixpkgs#<package>
 ```
 
-## Maintenance
+## License
 
-- `scripts/update-dependencies.cs` refreshes pinned upstream metadata in `pkgs/dependencies.nix`.
-- `.github/workflows/update-dependencies.yml` runs the updater on a weekly schedule and opens a pull request when versions change.
-
-## Development
-
-```bash
-nix flake show --all-systems
-./scripts/update-dependencies.cs
-```
+MIT
