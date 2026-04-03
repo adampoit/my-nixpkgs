@@ -30,8 +30,6 @@ if (missing.Count > 0)
 	throw new Exception($"Unknown dependency path(s): {string.Join(", ", missing)}");
 }
 
-var updated = new HashSet<string>(StringComparer.Ordinal);
-var checkedPaths = new List<string>();
 var modified = false;
 
 foreach (var entry in entries)
@@ -41,7 +39,6 @@ foreach (var entry in entries)
 		continue;
 	}
 
-	checkedPaths.Add(entry.Path);
 	var entryChanged = ApplyUpdateStrategy(entry, repoRoot);
 	if (HasGitHubSource(entry.Source))
 	{
@@ -73,18 +70,14 @@ foreach (var entry in entries)
 	if (entryChanged)
 	{
 		modified = true;
-		updated.Add(entry.Path);
 	}
+
+	Console.WriteLine($"{(entryChanged ? "updated" : "ok")}: {entry.Path}");
 }
 
 if (modified)
 {
 	WriteDependencies(depsFile, data);
-}
-
-foreach (var path in checkedPaths)
-{
-	Console.WriteLine($"{(updated.Contains(path) ? "updated" : "ok")}: {path}");
 }
 
 static JsonObject LoadDependencies(string depsFile, string workingDirectory)
