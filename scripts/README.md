@@ -30,6 +30,7 @@ On macOS and Linux, this works as a file-based app via the shebang in `scripts/u
 ### What It Does
 
 - Evaluates `pkgs/dependencies.nix`
+- Warns when a selected dependency appears to be available in the locked upstream `nixpkgs`
 - Applies any declared `update.strategy` before refreshing hashes
 - Finds entries with `source.owner`, `source.repo`, `source.rev`, and `source.hash`
 - Re-prefetches each GitHub archive and rewrites the stored `source.hash` when it changes
@@ -43,13 +44,20 @@ On macOS and Linux, this works as a file-based app via the shebang in `scripts/u
 - `npm-registry-release`: query the npm registry for the latest package version, update `version`, and refresh configured tarball URLs and hashes
 - `manual`: require explicit updater metadata for packages that are not automatically advanced by the script
 
+### Upstream nixpkgs Checks
+
+- By default, each selected dependency is matched against likely upstream attributes in the relevant scope (`pkgs` or `pkgs.vimPlugins`) using normalized package names.
+- Set `update.upstream.ignore = true;` when you intentionally want to keep maintaining an out-of-tree package even though nixpkgs already has one.
+- The upstream availability data is exposed for manual inspection as `.#lib.upstreamAvailability.<system>`.
+
 ### Notes
 
 - Hash recomputation builds `packages.<current-system>.<packageAttr>` from this flake.
 - Every top-level package entry in `pkgs/dependencies.nix` must define `update.strategy`.
 - Entries with `strategy = "manual"` are validated and accepted by the script but left unchanged.
+- The upstream availability warning only runs for the entries selected by the command-line filters.
 - NuGet entries can constrain updates with `update.version.prefix` when the package should stay on a supported release line.
 
 ## Scheduled Updates
 
-`.github/workflows/update-dependencies.yml` runs on a weekly cron and opens a pull request when `pkgs/dependencies.nix` changes.
+`.github/workflows/update-dependencies.yml` runs on a weekly cron, refreshes the locked `nixpkgs` input, opens a pull request only when `pkgs/dependencies.nix` changes, includes the corresponding `flake.lock` update in that pull request, and syncs per-package issues for dependencies that now appear to exist in upstream nixpkgs.

@@ -48,6 +48,17 @@
   in {
     lib = {
       neovimPlugins = lib.genAttrs neovimPluginNames (name: dependencies.${name});
+      upstreamAvailability = forEachSystem (system:
+        import ./pkgs/upstream-availability.nix {
+          inherit
+            dependencies
+            lib
+            neovimPluginNames
+            nixpkgs
+            packageNames
+            system
+            ;
+        });
     };
 
     overlays.default = import ./pkgs/overlay.nix;

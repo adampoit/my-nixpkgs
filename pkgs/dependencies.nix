@@ -86,6 +86,9 @@
         x86_64-linux = "@github/copilot-linux-x64";
       };
       strategy = "npm-registry-release";
+      upstream = {
+        ignore = true;
+      };
     };
     version = "1.0.17";
   };

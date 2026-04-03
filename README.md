@@ -1,6 +1,6 @@
 # my-nixpkgs
 
-Personal Nix packages not available in nixpkgs.
+Personal Nix packages not available in nixpkgs, plus a small number of intentionally newer out-of-tree variants.
 
 ## Usage
 

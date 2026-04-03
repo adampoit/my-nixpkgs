@@ -31,14 +31,14 @@ if (missing.Count > 0)
 }
 
 var modified = false;
+var selectedEntries = entries
+	.Where(entry => filters.Count == 0 || filters.Contains(entry.Path))
+	.ToList();
 
-foreach (var entry in entries)
+LogUpstreamMatches(selectedEntries, repoRoot);
+
+foreach (var entry in selectedEntries)
 {
-	if (filters.Count > 0 && !filters.Contains(entry.Path))
-	{
-		continue;
-	}
-
 	LogStep("checking", entry.Path);
 	var entryChanged = ApplyUpdateStrategy(entry, repoRoot);
 	string? prefetchedSourcePath = null;
@@ -108,6 +108,85 @@ static IEnumerable<DependencyEntry> GetPackageEntries(JsonObject data)
 
 		yield return new DependencyEntry(kvp.Key, node, node["source"] as JsonObject, update);
 	}
+}
+
+static void LogUpstreamMatches(IReadOnlyList<DependencyEntry> entries, string repoRoot)
+{
+	var selectedPaths = entries
+		.Select(entry => entry.Path)
+		.ToHashSet(StringComparer.Ordinal);
+
+	if (selectedPaths.Count == 0)
+	{
+		return;
+	}
+
+	Console.WriteLine($"checking upstream nixpkgs availability for {selectedPaths.Count} entr{(selectedPaths.Count == 1 ? "y" : "ies")}");
+	var availability = GetUpstreamAvailability(repoRoot);
+	var matches = selectedPaths
+		.Where(path => availability.TryGetValue(path, out var check) && check.Available)
+		.Select(path => new
+		{
+			Path = path,
+			Candidates = availability[path].Candidates,
+		})
+		.ToList();
+
+	if (matches.Count == 0)
+	{
+		return;
+	}
+
+	Console.WriteLine($"warning: upstream nixpkgs candidates exist for {matches.Count} selected entr{(matches.Count == 1 ? "y" : "ies")}");
+	foreach (var match in matches)
+	{
+		Console.WriteLine($"warning: {match.Path} -> {string.Join(", ", match.Candidates.Select(FormatAttrPath))}");
+	}
+}
+
+static Dictionary<string, UpstreamAvailability> GetUpstreamAvailability(string repoRoot)
+{
+	var output = RunAndCapture(
+		"nix",
+		[
+			"eval",
+			"--json",
+			$".#lib.upstreamAvailability.{GetNixSystem()}",
+		],
+		repoRoot);
+	var json = JsonNode.Parse(output) as JsonObject
+		?? throw new Exception("Expected upstream nixpkgs availability check to evaluate to a JSON object");
+	return json.ToDictionary(
+		kvp => kvp.Key,
+		kvp => ParseUpstreamAvailability(kvp.Key, kvp.Value),
+		StringComparer.Ordinal);
+}
+
+static UpstreamAvailability ParseUpstreamAvailability(string path, JsonNode? node)
+{
+	var check = node as JsonObject ?? throw new Exception($"Expected upstream availability object for {path}");
+	var available = check["available"]?.GetValue<bool>() ?? throw new Exception($"Missing upstream availability flag for {path}");
+	var candidates = check["candidates"] as JsonArray ?? throw new Exception($"Missing upstream candidates for {path}");
+
+	return new UpstreamAvailability(
+		available,
+		candidates
+			.Select(candidate => ParseUpstreamCandidate(path, candidate))
+			.ToList());
+}
+
+static IReadOnlyList<string> ParseUpstreamCandidate(string path, JsonNode? node)
+{
+	var candidate = node as JsonObject ?? throw new Exception($"Expected upstream candidate object for {path}");
+	var attrPath = candidate["attrPath"] as JsonArray ?? throw new Exception($"Missing upstream attrPath for {path}");
+	return attrPath
+		.Select(x => x?.GetValue<string>() ?? throw new Exception($"Invalid upstream attrPath component for {path}"))
+		.ToList();
+}
+
+static string FormatAttrPath(IReadOnlyList<string> attrPath)
+{
+	return string.Join(".", attrPath);
 }
 
 static bool HasGitHubSource(JsonObject? source) =>
@@ -661,3 +740,5 @@ sealed record DependencyEntry(string Path, JsonObject Node, JsonObject? Source, 
 sealed record PrefetchedSource(string Hash, string StorePath);
 
 sealed record ProcessResult(int ExitCode, string StdOut, string StdErr);
+
+sealed record UpstreamAvailability(bool Available, IReadOnlyList<IReadOnlyList<string>> Candidates);

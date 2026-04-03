@@ -11,6 +11,7 @@ concurrency:
 
 permissions:
   contents: write
+  issues: write
   pull-requests: write
 
 jobs:
@@ -23,6 +24,9 @@ jobs:
 
       - name: Setup Nix
         uses: nixbuild/nix-quick-install-action@v34
+
+      - name: Refresh nixpkgs input
+        run: nix flake lock --update-input nixpkgs
 
       - name: Configure repository cache
         env:
@@ -52,19 +56,42 @@ jobs:
       - name: Format dependency file
         run: nix run nixpkgs#alejandra -- pkgs/dependencies.nix
 
+      - name: Sync upstream package issues
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          chmod +x ./scripts/sync-upstream-issues.cs
+          ./scripts/sync-upstream-issues.cs
+
+      - name: Check for dependency metadata changes
+        id: dependency-changes
+        run: |
+          set -euo pipefail
+          if git diff --quiet --exit-code -- pkgs/dependencies.nix; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Create pull request
         id: create-pull-request
+        if: steps.dependency-changes.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.CREATE_PR_TOKEN }}
+          add-paths: |
+            flake.lock
+            pkgs/dependencies.nix
           branch: automation/update-dependencies
           delete-branch: true
           commit-message: Update managed dependencies
           title: Update managed dependencies
           body: |
             ## Summary
+            - refresh the `nixpkgs` flake input
             - run `./scripts/update-dependencies.cs`
-            - refresh pinned package metadata in `pkgs/dependencies.nix`
+            - refresh pinned package metadata in `pkgs/dependencies.nix` and `flake.lock`
           labels: dependencies
 
       - name: Enable pull request auto-merge
