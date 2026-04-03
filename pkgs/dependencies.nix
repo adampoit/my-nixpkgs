@@ -153,18 +153,6 @@
     };
     version = "0.1.0";
   };
-  tiny-inline-diagnostic = {
-    source = {
-      hash = "sha256-cIG8PPcYjJxsTbaeEN/P/D75wou1c1A2+2XkxN1aUPw=";
-      owner = "rachartier";
-      repo = "tiny-inline-diagnostic.nvim";
-      rev = "ba133b3e932416e4b9507095731a6d7276878fe8";
-    };
-    update = {
-      branch = "main";
-      strategy = "github-branch";
-    };
-  };
   ts-error-translator = {
     source = {
       hash = "sha256-/eLbUkjFpAneMoITdknATvpDjnA5XMUjEKaDq0CG+ys=";

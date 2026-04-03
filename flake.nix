@@ -33,7 +33,6 @@
     neovimPluginNames = [
       "jj-diffconflicts"
       "screenkey"
-      "tiny-inline-diagnostic"
       "ts-error-translator"
     ];
     mkPkgs = system:
