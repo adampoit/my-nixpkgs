@@ -39,9 +39,11 @@ foreach (var entry in entries)
 		continue;
 	}
 
+	LogStep("checking", entry.Path);
 	var entryChanged = ApplyUpdateStrategy(entry, repoRoot);
 	if (HasGitHubSource(entry.Source))
 	{
+		LogStep("prefetching source hash", entry.Path);
 		var source = entry.Source!;
 		var newSourceHash = PrefetchHash(source, repoRoot);
 		var currentSourceHash = source["hash"]?.GetValue<string>() ?? throw new Exception($"Missing source.hash for {entry.Path}");
@@ -57,6 +59,7 @@ foreach (var entry in entries)
 		WriteDependencies(depsFile, data);
 		foreach (var field in entry.HashFields)
 		{
+			LogStep($"resolving {field}", entry.Path);
 			var resolvedHash = ResolveBuildHash(repoRoot, packageRoot, entry, field, depsFile, data);
 			var currentHash = entry.Node[field]?.GetValue<string>();
 			if (!StringComparer.Ordinal.Equals(resolvedHash, currentHash))
@@ -114,6 +117,7 @@ static bool HasGitHubSource(JsonObject? source) =>
 static bool ApplyUpdateStrategy(DependencyEntry entry, string workingDirectory)
 {
 	var strategy = entry.Update["strategy"]?.GetValue<string>() ?? throw new Exception($"Missing update.strategy for {entry.Path}");
+	LogStep($"strategy {strategy}", entry.Path);
 	return strategy switch
 	{
 		"manual" => false,
@@ -132,6 +136,7 @@ static bool ApplyGitHubBranchUpdate(DependencyEntry entry, string workingDirecto
 		throw new Exception($"github-branch requires source.owner, source.repo, source.rev, and source.hash for {entry.Path}");
 	}
 
+	LogStep("checking GitHub branch", entry.Path);
 	var source = entry.Source!;
 	var owner = source["owner"]?.GetValue<string>() ?? throw new Exception($"Missing source.owner for {entry.Path}");
 	var repo = source["repo"]?.GetValue<string>() ?? throw new Exception($"Missing source.repo for {entry.Path}");
@@ -149,6 +154,7 @@ static bool ApplyGitHubBranchUpdate(DependencyEntry entry, string workingDirecto
 
 static bool ApplyNuGetReleaseUpdate(DependencyEntry entry)
 {
+	LogStep("checking NuGet release", entry.Path);
 	var currentVersion = entry.Node["version"]?.GetValue<string>() ?? throw new Exception($"Missing version for {entry.Path}");
 	var nextVersion = GetLatestNuGetPackageVersion(entry);
 	if (StringComparer.Ordinal.Equals(currentVersion, nextVersion))
@@ -167,6 +173,7 @@ static bool ApplyGitHubReleaseUpdate(DependencyEntry entry, string workingDirect
 		throw new Exception($"github-release requires source.owner, source.repo, source.rev, and source.hash for {entry.Path}");
 	}
 
+	LogStep("checking GitHub release", entry.Path);
 	var source = entry.Source!;
 
 	var owner = source["owner"]?.GetValue<string>() ?? throw new Exception($"Missing source.owner for {entry.Path}");
@@ -251,6 +258,7 @@ static string GetLatestNuGetPackageVersion(DependencyEntry entry)
 
 static bool ApplyNpmRegistryReleaseUpdate(DependencyEntry entry, string workingDirectory)
 {
+	LogStep("checking npm release", entry.Path);
 	var packageId = entry.Update["packageId"]?.GetValue<string>() ?? throw new Exception($"Missing update.packageId for {entry.Path}");
 	var version = GetLatestNpmPackageVersion(entry.Update, packageId);
 	var changed = false;
@@ -269,6 +277,7 @@ static bool ApplyNpmRegistryReleaseUpdate(DependencyEntry entry, string workingD
 	{
 		var system = kvp.Key;
 		var systemPackageId = kvp.Value?.GetValue<string>() ?? throw new Exception($"Invalid source package mapping for {entry.Path}.{system}");
+		LogStep($"prefetching {system} tarball", entry.Path);
 		var tarballUrl = GetNpmTarballUrl(systemPackageId, version);
 		var tarballHash = PrefetchFileHash(tarballUrl, workingDirectory);
 
@@ -376,6 +385,7 @@ static string ResolveBuildHash(string repoRoot, string packageRoot, DependencyEn
 	entry.Node[field] = FakeHash;
 	WriteDependencies(depsFile, data);
 
+	LogStep($"running nix build for {field}", entry.Path);
 	var result = RunProcess("nix", ["build", $"{packageRoot}.{entry.PackageAttr}", "--no-link"], repoRoot);
 	if (result.ExitCode == 0)
 	{
@@ -389,6 +399,11 @@ static string ResolveBuildHash(string repoRoot, string packageRoot, DependencyEn
 	}
 
 	return resolvedHash;
+}
+
+static void LogStep(string action, string path)
+{
+	Console.WriteLine($"{action}: {path}");
 }
 
 static string? ExtractHash(string text)
