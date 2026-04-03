@@ -59,6 +59,7 @@ jobs:
       - name: Sync upstream package issues
         env:
           GH_TOKEN: ${{ github.token }}
+          GITHUB_ASSIGNEE: adampoit
         run: |
           set -euo pipefail
           chmod +x ./scripts/sync-upstream-issues.cs

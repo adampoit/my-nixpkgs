@@ -5,6 +5,8 @@ using System.Text;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 
+const string DefaultAssignee = "adampoit";
+
 var dryRun = args.Contains("--dry-run", StringComparer.Ordinal);
 var currentDirectory = Directory.GetCurrentDirectory();
 var repoRoot = File.Exists(Path.Combine(currentDirectory, "pkgs", "dependencies.nix"))
@@ -12,6 +14,7 @@ var repoRoot = File.Exists(Path.Combine(currentDirectory, "pkgs", "dependencies.
 	: Path.GetFullPath(Path.Combine(currentDirectory, ".."));
 
 var repo = GetRepositoryName(repoRoot);
+var assignee = Environment.GetEnvironmentVariable("GITHUB_ASSIGNEE") ?? DefaultAssignee;
 var desiredIssues = GetDesiredIssues(repoRoot);
 var existingIssues = GetManagedIssues(repoRoot, repo);
 
@@ -19,7 +22,8 @@ foreach (var issue in desiredIssues.Values.OrderBy(x => x.Package, StringCompare
 {
 	if (existingIssues.TryGetValue(issue.Package, out var existing))
 	{
-		if (StringComparer.Ordinal.Equals(existing.Title, issue.Title) && StringComparer.Ordinal.Equals(existing.Body, issue.Body))
+		var needsAssignee = !existing.Assignees.Contains(assignee, StringComparer.Ordinal);
+		if (StringComparer.Ordinal.Equals(existing.Title, issue.Title) && StringComparer.Ordinal.Equals(existing.Body, issue.Body) && !needsAssignee)
 		{
 			Console.WriteLine($"ok: {issue.Package}");
 			continue;
@@ -33,6 +37,10 @@ foreach (var issue in desiredIssues.Values.OrderBy(x => x.Package, StringCompare
 
 		Console.WriteLine($"updating issue #{existing.Number} for {issue.Package}");
 		RunAndCapture("gh", ["issue", "edit", existing.Number.ToString(), "--title", issue.Title, "--body", issue.Body], repoRoot);
+		if (needsAssignee)
+		{
+			RunAndCapture("gh", ["issue", "edit", existing.Number.ToString(), "--add-assignee", assignee], repoRoot);
+		}
 		continue;
 	}
 
@@ -43,7 +51,7 @@ foreach (var issue in desiredIssues.Values.OrderBy(x => x.Package, StringCompare
 	}
 
 	Console.WriteLine($"creating issue for {issue.Package}");
-	RunAndCapture("gh", ["issue", "create", "--title", issue.Title, "--body", issue.Body], repoRoot);
+	RunAndCapture("gh", ["issue", "create", "--title", issue.Title, "--body", issue.Body, "--assignee", assignee], repoRoot);
 }
 
 foreach (var staleIssue in existingIssues.Values.Where(x => !desiredIssues.ContainsKey(x.Package)).OrderBy(x => x.Package, StringComparer.Ordinal))
@@ -172,6 +180,7 @@ static Dictionary<string, ManagedIssue> GetManagedIssues(string workingDirectory
 			issue["number"]?.GetValue<int>() ?? throw new Exception("Missing issue number"),
 			issue["title"]?.GetValue<string>() ?? throw new Exception("Missing issue title"),
 			body,
+			(issue["assignees"] as JsonArray ?? []).Select(ParseAssignee).ToList(),
 			package);
 	}
 
@@ -182,6 +191,12 @@ static string? GetManagedPackage(string body)
 {
 	var match = Regex.Match(body, @"<!--\s*upstream-package:([^\s>]+)\s*-->", RegexOptions.Multiline);
 	return match.Success ? match.Groups[1].Value : null;
+}
+
+static string ParseAssignee(JsonNode? node)
+{
+	var assignee = node as JsonObject ?? throw new Exception("Expected assignee to be an object");
+	return assignee["login"]?.GetValue<string>() ?? throw new Exception("Missing assignee login");
 }
 
 static string RunAndCapture(string fileName, IReadOnlyList<string> arguments, string workingDirectory)
@@ -214,6 +229,6 @@ static string RunAndCapture(string fileName, IReadOnlyList<string> arguments, st
 
 sealed record DesiredIssue(string Package, string Title, string Body);
 
-sealed record ManagedIssue(int Number, string Title, string Body, string Package);
+sealed record ManagedIssue(int Number, string Title, string Body, IReadOnlyList<string> Assignees, string Package);
 
 sealed record UpstreamAvailability(bool Available, IReadOnlyList<IReadOnlyList<string>> Candidates);
