@@ -41,11 +41,14 @@ foreach (var entry in entries)
 
 	LogStep("checking", entry.Path);
 	var entryChanged = ApplyUpdateStrategy(entry, repoRoot);
+	string? prefetchedSourcePath = null;
 	if (HasGitHubSource(entry.Source))
 	{
 		LogStep("prefetching source hash", entry.Path);
 		var source = entry.Source!;
-		var newSourceHash = PrefetchHash(source, repoRoot);
+		var prefetchedSource = PrefetchSource(source, repoRoot);
+		prefetchedSourcePath = prefetchedSource.StorePath;
+		var newSourceHash = prefetchedSource.Hash;
 		var currentSourceHash = source["hash"]?.GetValue<string>() ?? throw new Exception($"Missing source.hash for {entry.Path}");
 		if (!StringComparer.Ordinal.Equals(newSourceHash, currentSourceHash))
 		{
@@ -60,7 +63,7 @@ foreach (var entry in entries)
 		foreach (var field in entry.HashFields)
 		{
 			LogStep($"resolving {field}", entry.Path);
-			var resolvedHash = ResolveBuildHash(repoRoot, packageRoot, entry, field, depsFile, data);
+			var resolvedHash = ResolveHashField(repoRoot, packageRoot, entry, field, depsFile, data, prefetchedSourcePath);
 			var currentHash = entry.Node[field]?.GetValue<string>();
 			if (!StringComparer.Ordinal.Equals(resolvedHash, currentHash))
 			{
@@ -362,7 +365,7 @@ static string GetVersionFromTag(string tag, JsonObject? update)
 	return tag;
 }
 
-static string PrefetchHash(JsonObject source, string workingDirectory)
+static PrefetchedSource PrefetchSource(JsonObject source, string workingDirectory)
 {
 	var owner = Uri.EscapeDataString(source["owner"]?.GetValue<string>() ?? throw new Exception("Missing source.owner"));
 	var repo = Uri.EscapeDataString(source["repo"]?.GetValue<string>() ?? throw new Exception("Missing source.repo"));
@@ -370,7 +373,9 @@ static string PrefetchHash(JsonObject source, string workingDirectory)
 	var url = $"https://github.com/{owner}/{repo}/archive/{rev}.tar.gz";
 	var output = RunAndCapture("nix", ["store", "prefetch-file", "--json", "--unpack", url], workingDirectory);
 	var json = JsonNode.Parse(output) as JsonObject ?? throw new Exception("Expected prefetch output to be a JSON object");
-	return json["hash"]?.GetValue<string>() ?? throw new Exception($"Missing hash in prefetch output for {url}");
+	return new PrefetchedSource(
+		json["hash"]?.GetValue<string>() ?? throw new Exception($"Missing hash in prefetch output for {url}"),
+		json["storePath"]?.GetValue<string>() ?? throw new Exception($"Missing storePath in prefetch output for {url}"));
 }
 
 static string PrefetchFileHash(string url, string workingDirectory)
@@ -378,6 +383,60 @@ static string PrefetchFileHash(string url, string workingDirectory)
 	var output = RunAndCapture("nix", ["store", "prefetch-file", "--json", url], workingDirectory);
 	var json = JsonNode.Parse(output) as JsonObject ?? throw new Exception("Expected prefetch output to be a JSON object");
 	return json["hash"]?.GetValue<string>() ?? throw new Exception($"Missing hash in prefetch output for {url}");
+}
+
+static string ResolveHashField(string repoRoot, string packageRoot, DependencyEntry entry, string field, string depsFile, JsonObject data, string? prefetchedSourcePath)
+{
+	return field switch
+	{
+		"npmDepsHash" when prefetchedSourcePath is not null => ResolveNpmDepsHash(entry, prefetchedSourcePath, repoRoot),
+		_ => ResolveBuildHash(repoRoot, packageRoot, entry, field, depsFile, data),
+	};
+}
+
+static string ResolveNpmDepsHash(DependencyEntry entry, string sourceRoot, string workingDirectory)
+{
+	LogStep("prefetching npm dependencies", entry.Path);
+	var lockfilePath = GetNpmLockfilePath(entry, sourceRoot);
+	var executable = GetPrefetchNpmDepsExecutable(workingDirectory);
+	return RunAndCapture(executable, [lockfilePath], workingDirectory).Trim();
+}
+
+static string GetNpmLockfilePath(DependencyEntry entry, string sourceRoot)
+{
+	if (entry.Update["lockfile"] is JsonValue lockfileValue)
+	{
+		var lockfilePath = Path.Combine(sourceRoot, lockfileValue.GetValue<string>());
+		if (File.Exists(lockfilePath))
+		{
+			return lockfilePath;
+		}
+
+		throw new Exception($"Configured npm lockfile was not found for {entry.Path}: {lockfilePath}");
+	}
+
+	foreach (var candidate in new[] {"package-lock.json", "npm-shrinkwrap.json"})
+	{
+		var candidatePath = Path.Combine(sourceRoot, candidate);
+		if (File.Exists(candidatePath))
+		{
+			return candidatePath;
+		}
+	}
+
+	throw new Exception($"Could not find an npm lockfile for {entry.Path}. Set update.lockfile to the relative path if it is not at the repository root.");
+}
+
+static string GetPrefetchNpmDepsExecutable(string workingDirectory)
+{
+	var packagePath = RunAndCapture("nix", ["build", "nixpkgs#prefetch-npm-deps", "--no-link", "--print-out-paths"], workingDirectory).Trim();
+	var executable = Path.Combine(packagePath, "bin", "prefetch-npm-deps");
+	if (!File.Exists(executable))
+	{
+		throw new Exception($"Could not find prefetch-npm-deps executable in {packagePath}");
+	}
+
+	return executable;
 }
 
 static string ResolveBuildHash(string repoRoot, string packageRoot, DependencyEntry entry, string field, string depsFile, JsonObject data)
@@ -598,5 +657,7 @@ sealed record DependencyEntry(string Path, JsonObject Node, JsonObject? Source, 
 			? hashFields.Select(x => x?.GetValue<string>() ?? throw new Exception($"Invalid hash field for {Path}")).ToList()
 			: [];
 }
+
+sealed record PrefetchedSource(string Hash, string StorePath);
 
 sealed record ProcessResult(int ExitCode, string StdOut, string StdErr);
