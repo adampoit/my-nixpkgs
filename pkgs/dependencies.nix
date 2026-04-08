@@ -61,20 +61,20 @@
   github-copilot-cli = {
     source = {
       aarch64-darwin = {
-        hash = "sha256-ZtXGeulgkmGVKz+JTGniISgGh6sn09YYocKD6UwqpD4=";
-        url = "https://registry.npmjs.org/@github/copilot-darwin-arm64/-/copilot-darwin-arm64-1.0.19.tgz";
+        hash = "sha256-4H8smBS/Jbq9l8dbOug9IY1nhmWhsfPgUQlyvOdZH04=";
+        url = "https://registry.npmjs.org/@github/copilot-darwin-arm64/-/copilot-darwin-arm64-1.0.21.tgz";
       };
       aarch64-linux = {
-        hash = "sha256-xy+B4vPSdWkjULzX+2O5R3+onWOQPg41sUvfyiBdnDE=";
-        url = "https://registry.npmjs.org/@github/copilot-linux-arm64/-/copilot-linux-arm64-1.0.19.tgz";
+        hash = "sha256-BxqaHlnAvD6PIaZv9ZIXdll1vTdgQsVtRJQ70HwmRvA=";
+        url = "https://registry.npmjs.org/@github/copilot-linux-arm64/-/copilot-linux-arm64-1.0.21.tgz";
       };
       x86_64-darwin = {
-        hash = "sha256-RAwzj1qcZ3zoW94sMmyEjg9id1y1yqAcymsyvs7aBCc=";
-        url = "https://registry.npmjs.org/@github/copilot-darwin-x64/-/copilot-darwin-x64-1.0.19.tgz";
+        hash = "sha256-vD5QMuEoPNJfwWn18nolYy+MyKK5zcRyVSuZXPZBD1Q=";
+        url = "https://registry.npmjs.org/@github/copilot-darwin-x64/-/copilot-darwin-x64-1.0.21.tgz";
       };
       x86_64-linux = {
-        hash = "sha256-EZoML3G5zseELHxuCvyR8ZoajA+ypb3ebhgjMNgqUb4=";
-        url = "https://registry.npmjs.org/@github/copilot-linux-x64/-/copilot-linux-x64-1.0.19.tgz";
+        hash = "sha256-H3bsHexEf/+P3Ep0+y7o7L4Q6oJubdIDYlqyUr4uYCU=";
+        url = "https://registry.npmjs.org/@github/copilot-linux-x64/-/copilot-linux-x64-1.0.21.tgz";
       };
     };
     update = {
@@ -90,7 +90,7 @@
         ignore = true;
       };
     };
-    version = "1.0.19";
+    version = "1.0.21";
   };
   jj-diffconflicts = {
     source = {
@@ -105,12 +105,12 @@
     };
   };
   playwright-cli = {
-    npmDepsHash = "sha256-bvtwt04ECC/NvfWWuBdDZ+8PFlTtOtRquJHS7vie1m8=";
+    npmDepsHash = "sha256-mjfrV6ZX8PnjjeIXpKcQ6IadX6qqb8KG8tx/PPuVR8k=";
     source = {
-      hash = "sha256-NtYGVWOiqYNoyRQ/Rt4kSBcuGJn6Yb8yxa0X41sDyYU=";
+      hash = "sha256-TUzWI0uOsm5HP4RKlMwm4bcYdS0fUkO6ceH82o1zSmU=";
       owner = "microsoft";
       repo = "playwright-cli";
-      rev = "v0.1.5";
+      rev = "v0.1.6";
     };
     update = {
       hashFields = [
@@ -122,7 +122,7 @@
         stripPrefix = "v";
       };
     };
-    version = "0.1.5";
+    version = "0.1.6";
   };
   screenkey = {
     source = {
