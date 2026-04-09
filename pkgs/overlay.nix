@@ -2,6 +2,7 @@ let
   dependencies = import ./dependencies.nix;
 in
   final: _prev: {
+    cortexapps-cli = final.callPackage ./cortexapps-cli {inherit dependencies;};
     dotnet-counters = final.callPackage ./dotnet-counters {inherit dependencies;};
     dotnet-trace = final.callPackage ./dotnet-trace {inherit dependencies;};
     findreplacecode = final.callPackage ./findreplacecode {inherit dependencies;};

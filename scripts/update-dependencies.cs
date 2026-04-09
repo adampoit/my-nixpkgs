@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 const string FakeHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
 const string NuGetServiceIndexUrl = "https://api.nuget.org/v3/index.json";
 const string NpmRegistryUrl = "https://registry.npmjs.org";
+const string PyPiRegistryUrl = "https://pypi.org/pypi";
 
 var currentDirectory = Directory.GetCurrentDirectory();
 var repoRoot = File.Exists(Path.Combine(currentDirectory, "pkgs", "dependencies.nix"))
@@ -207,6 +208,7 @@ static bool ApplyUpdateStrategy(DependencyEntry entry, string workingDirectory)
 		"github-release" => ApplyGitHubReleaseUpdate(entry, workingDirectory),
 		"nuget-release" => ApplyNuGetReleaseUpdate(entry),
 		"npm-registry-release" => ApplyNpmRegistryReleaseUpdate(entry, workingDirectory),
+		"pypi-release" => ApplyPyPiReleaseUpdate(entry, workingDirectory),
 		_ => throw new Exception($"Unsupported update strategy '{strategy}' for {entry.Path}"),
 	};
 }
@@ -386,6 +388,58 @@ static bool ApplyNpmRegistryReleaseUpdate(DependencyEntry entry, string workingD
 	return changed;
 }
 
+static bool ApplyPyPiReleaseUpdate(DependencyEntry entry, string workingDirectory)
+{
+	var packageId = entry.Update["packageId"]?.GetValue<string>() ?? entry.Path;
+	var packageType = entry.Update["packageType"]?.GetValue<string>() ?? "sdist";
+	var release = GetLatestPyPiRelease(entry.Update, packageId, packageType);
+	var source = entry.Source ?? throw new Exception($"Missing source for {entry.Path}");
+	var changed = false;
+
+	var currentVersion = entry.Node["version"]?.GetValue<string>() ?? throw new Exception($"Missing version for {entry.Path}");
+	if (!StringComparer.Ordinal.Equals(currentVersion, release.Version))
+	{
+		entry.Node["version"] = release.Version;
+		changed = true;
+	}
+
+	var currentUrl = source["url"]?.GetValue<string>() ?? throw new Exception($"Missing source.url for {entry.Path}");
+	if (!StringComparer.Ordinal.Equals(currentUrl, release.Url))
+	{
+		source["url"] = release.Url;
+		changed = true;
+	}
+
+	var releaseHash = PrefetchFileHash(release.Url, workingDirectory);
+	var currentHash = source["hash"]?.GetValue<string>() ?? throw new Exception($"Missing source.hash for {entry.Path}");
+	if (!StringComparer.Ordinal.Equals(currentHash, releaseHash))
+	{
+		source["hash"] = releaseHash;
+		changed = true;
+	}
+
+	return changed;
+}
+
+static PyPiRelease GetLatestPyPiRelease(JsonObject update, string packageId, string packageType)
+{
+	var metadata = GetJsonObject(GetPyPiPackageMetadataUrl(packageId));
+	var info = metadata["info"] as JsonObject ?? throw new Exception($"Expected info object for PyPI package {packageId}");
+	var version = info["version"]?.GetValue<string>() ?? throw new Exception($"Missing info.version for PyPI package {packageId}");
+	var urls = metadata["urls"] as JsonArray ?? throw new Exception($"Expected urls array for PyPI package {packageId}");
+	var releaseFile = urls
+		.Select(x => x as JsonObject)
+		.FirstOrDefault(x => StringComparer.Ordinal.Equals(x?["packagetype"]?.GetValue<string>(), packageType));
+
+	if (releaseFile is null)
+	{
+		throw new Exception($"Could not find a '{packageType}' distribution for PyPI package {packageId}@{version}");
+	}
+
+	var url = releaseFile["url"]?.GetValue<string>() ?? throw new Exception($"Missing distribution url for PyPI package {packageId}@{version}");
+	return new PyPiRelease(version, url);
+}
+
 static string GetLatestNpmPackageVersion(JsonObject update, string packageId)
 {
 	var distTag = update["distTag"]?.GetValue<string>() ?? "latest";
@@ -405,6 +459,11 @@ static string GetNpmTarballUrl(string packageId, string version)
 static string GetNpmPackageMetadataUrl(string packageId)
 {
 	return $"{NpmRegistryUrl}/{Uri.EscapeDataString(packageId)}";
+}
+
+static string GetPyPiPackageMetadataUrl(string packageId)
+{
+	return $"{PyPiRegistryUrl}/{Uri.EscapeDataString(packageId)}/json";
 }
 
 static string GetNuGetPackageBaseAddress()
@@ -736,6 +795,8 @@ sealed record DependencyEntry(string Path, JsonObject Node, JsonObject? Source, 
 			? hashFields.Select(x => x?.GetValue<string>() ?? throw new Exception($"Invalid hash field for {Path}")).ToList()
 			: [];
 }
+
+sealed record PyPiRelease(string Version, string Url);
 
 sealed record PrefetchedSource(string Hash, string StorePath);
 

@@ -1,4 +1,14 @@
 {
+  cortexapps-cli = {
+    source = {
+      hash = "sha256-y+ZjCq+CCQ3Z8i1aG2X6kTPnH4GmZfy6niZAXbxmEuk=";
+      url = "https://files.pythonhosted.org/packages/4f/bb/3d2f9d51a81de6a254667eca5a24881e909e8f6e3f2c84a1f54b1db9272c/cortexapps_cli-1.14.0.tar.gz";
+    };
+    update = {
+      strategy = "pypi-release";
+    };
+    version = "1.14.0";
+  };
   dotnet-counters = {
     nugetSha256 = "sha256-AYT06BqaY1IPA8YTlvLNdQQgmslKmZK6tS7s8Lm8Rss=";
     update = {

@@ -20,6 +20,7 @@
     ];
     forEachSystem = f: lib.genAttrs systems f;
     packageNames = [
+      "cortexapps-cli"
       "dotnet-counters"
       "dotnet-trace"
       "findreplacecode"

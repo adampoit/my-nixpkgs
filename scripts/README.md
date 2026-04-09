@@ -42,6 +42,7 @@ On macOS and Linux, this works as a file-based app via the shebang in `scripts/u
 - `github-branch`: query `gh` for the latest commit on a configured branch, update `source.rev`, then refresh the source hash
 - `nuget-release`: query the NuGet V3 API for the latest stable package version, update `version`, then refresh dependent hashes
 - `npm-registry-release`: query the npm registry for the latest package version, update `version`, and refresh configured tarball URLs and hashes
+- `pypi-release`: query the PyPI JSON API for the latest release, update `version`, `source.url`, and `source.hash`
 - `manual`: require explicit updater metadata for packages that are not automatically advanced by the script
 
 ### Upstream nixpkgs Checks
@@ -57,6 +58,7 @@ On macOS and Linux, this works as a file-based app via the shebang in `scripts/u
 - Entries with `strategy = "manual"` are validated and accepted by the script but left unchanged.
 - The upstream availability warning only runs for the entries selected by the command-line filters.
 - NuGet entries can constrain updates with `update.version.prefix` when the package should stay on a supported release line.
+- PyPI entries default to the `sdist` artifact and can override that with `update.packageType`.
 
 ## Scheduled Updates
 
