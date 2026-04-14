@@ -1,4 +1,27 @@
 {
+  apm = {
+    source = {
+      hash = "sha256-24bgypj2MHzRJaW+SXfwS7VamAgAkCuwZNcskPOKLig=";
+      url = "https://files.pythonhosted.org/packages/10/55/c14dde233a321162729552592e91de3ecfd68fe8ae56dd1d8341fee2ad0e/apm_cli-0.8.11.tar.gz";
+    };
+    update = {
+      packageId = "apm-cli";
+      strategy = "pypi-release";
+    };
+    version = "0.8.11";
+  };
+  azure-ai-inference = {
+    source = {
+      hash = "sha256-SYI3MuZ0CS2tg7uLDRtlqnMRH6uSTWE0nrKozcBJOZA=";
+      url = "https://files.pythonhosted.org/packages/4f/0f/27520da74769db6e58327d96c98e7b9a07ce686dff582c9a5ec60b03f9dd/azure_ai_inference-1.0.0b9-py3-none-any.whl";
+    };
+    update = {
+      packageId = "azure-ai-inference";
+      packageType = "bdist_wheel";
+      strategy = "pypi-release";
+    };
+    version = "1.0.0b9";
+  };
   cortexapps-cli = {
     source = {
       hash = "sha256-y+ZjCq+CCQ3Z8i1aG2X6kTPnH4GmZfy6niZAXbxmEuk=";
@@ -101,6 +124,17 @@
       };
     };
     version = "1.0.25";
+  };
+  llm-github-models = {
+    source = {
+      hash = "sha256-t3iqb6Q+U+yzuGj8+YdbwOdgp3Sh+tduqQeiaVgqIEM=";
+      url = "https://files.pythonhosted.org/packages/2c/b5/714d6c7683cf5ffcf0352951a83ea9d952bd6052900b9e7ccb2a3b09ce0a/llm_github_models-0.18.0.tar.gz";
+    };
+    update = {
+      packageId = "llm-github-models";
+      strategy = "pypi-release";
+    };
+    version = "0.18.0";
   };
   jj-diffconflicts = {
     source = {
