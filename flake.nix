@@ -20,12 +20,15 @@
     ];
     forEachSystem = f: lib.genAttrs systems f;
     packageNames = [
+      "apm"
+      "azure-ai-inference"
       "cortexapps-cli"
       "dotnet-counters"
       "dotnet-trace"
       "findreplacecode"
       "gh-workflow-stats"
       "github-copilot-cli"
+      "llm-github-models"
       "playwright-cli"
       "skills-ref"
       "vscode-firefox-debug"
