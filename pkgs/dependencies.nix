@@ -94,20 +94,20 @@
   github-copilot-cli = {
     source = {
       aarch64-darwin = {
-        hash = "sha256-xIyNpN60dUkuI6Xgabu11IvZ/Lok1ZYubjGMast3tQ0=";
-        url = "https://registry.npmjs.org/@github/copilot-darwin-arm64/-/copilot-darwin-arm64-1.0.25.tgz";
+        hash = "sha256-96ULkNa4lgPlYAw5SkbnvlodDz9TZfh+bQBg1VSDKng=";
+        url = "https://registry.npmjs.org/@github/copilot-darwin-arm64/-/copilot-darwin-arm64-1.0.27.tgz";
       };
       aarch64-linux = {
-        hash = "sha256-KR78TINeA0i4s4fLyAOMoFAV2e4UNOS7PagPBVbzXi8=";
-        url = "https://registry.npmjs.org/@github/copilot-linux-arm64/-/copilot-linux-arm64-1.0.25.tgz";
+        hash = "sha256-Pe0gEMHB9dD51/Yzo+f0j7+b/bF3LLEK6+OXCdoJmfw=";
+        url = "https://registry.npmjs.org/@github/copilot-linux-arm64/-/copilot-linux-arm64-1.0.27.tgz";
       };
       x86_64-darwin = {
-        hash = "sha256-KIiCDc3iIekGJ5E4sZt3iORtRIN+My5ubm5AZE1gIxI=";
-        url = "https://registry.npmjs.org/@github/copilot-darwin-x64/-/copilot-darwin-x64-1.0.25.tgz";
+        hash = "sha256-0nMw82Rcf/kyOgeHEpekrmhg18SLcb8LWs6nKXfNHw8=";
+        url = "https://registry.npmjs.org/@github/copilot-darwin-x64/-/copilot-darwin-x64-1.0.27.tgz";
       };
       x86_64-linux = {
-        hash = "sha256-twkZOTUGaPqEdA1CSTZfZZ3GlbGL4Sv655YWDBDjIqQ=";
-        url = "https://registry.npmjs.org/@github/copilot-linux-x64/-/copilot-linux-x64-1.0.25.tgz";
+        hash = "sha256-n80Xv2HfsDhw3sisVOUqNUKQWCiGLEW5lNPzn4SrwRs=";
+        url = "https://registry.npmjs.org/@github/copilot-linux-x64/-/copilot-linux-x64-1.0.27.tgz";
       };
     };
     update = {
@@ -123,18 +123,7 @@
         ignore = true;
       };
     };
-    version = "1.0.25";
-  };
-  llm-github-models = {
-    source = {
-      hash = "sha256-t3iqb6Q+U+yzuGj8+YdbwOdgp3Sh+tduqQeiaVgqIEM=";
-      url = "https://files.pythonhosted.org/packages/2c/b5/714d6c7683cf5ffcf0352951a83ea9d952bd6052900b9e7ccb2a3b09ce0a/llm_github_models-0.18.0.tar.gz";
-    };
-    update = {
-      packageId = "llm-github-models";
-      strategy = "pypi-release";
-    };
-    version = "0.18.0";
+    version = "1.0.27";
   };
   jj-diffconflicts = {
     source = {
@@ -148,13 +137,24 @@
       strategy = "github-branch";
     };
   };
-  playwright-cli = {
-    npmDepsHash = "sha256-J/d04hKNVl/azPaYgbGSqWbCBDxZwogmomk7lQ0t91I=";
+  llm-github-models = {
     source = {
-      hash = "sha256-6HAQi2P1ddEW5ubFc5pUtPpBSdnNRgfejFiCVBfvbJY=";
+      hash = "sha256-t3iqb6Q+U+yzuGj8+YdbwOdgp3Sh+tduqQeiaVgqIEM=";
+      url = "https://files.pythonhosted.org/packages/2c/b5/714d6c7683cf5ffcf0352951a83ea9d952bd6052900b9e7ccb2a3b09ce0a/llm_github_models-0.18.0.tar.gz";
+    };
+    update = {
+      packageId = "llm-github-models";
+      strategy = "pypi-release";
+    };
+    version = "0.18.0";
+  };
+  playwright-cli = {
+    npmDepsHash = "sha256-DK+nTRdVKznerAMK7McCCgr2OK4GXymbmgyR9qU/aH4=";
+    source = {
+      hash = "sha256-8f/wFO4hSytpy3kEPyScoMWXWyeTl/SKoc3vD7xYaKo=";
       owner = "microsoft";
       repo = "playwright-cli";
-      rev = "0.1.7";
+      rev = "v0.1.8";
     };
     update = {
       hashFields = [
@@ -166,7 +166,7 @@
         stripPrefix = "v";
       };
     };
-    version = "0.1.7";
+    version = "0.1.8";
   };
   screenkey = {
     source = {
@@ -185,10 +185,10 @@
   };
   skills-ref = {
     source = {
-      hash = "sha256-DET/wxwykv4Qb7X6zd+mesVb+sHfxom5re/O/zQQchA=";
+      hash = "sha256-N6/ubnBv5AzGhku60FmmNZav+FDEj7hvJF/5U+yHswQ=";
       owner = "agentskills";
       repo = "agentskills";
-      rev = "b12d4f812cb347d6035efaa0b800691bf2dc0d55";
+      rev = "8d8fcbc69e0c42e05922c2ffc287a3bbdef7b0a3";
     };
     sourceSubdir = "skills-ref";
     update = {
