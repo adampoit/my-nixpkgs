@@ -24,13 +24,13 @@
   };
   cortexapps-cli = {
     source = {
-      hash = "sha256-y+ZjCq+CCQ3Z8i1aG2X6kTPnH4GmZfy6niZAXbxmEuk=";
-      url = "https://files.pythonhosted.org/packages/4f/bb/3d2f9d51a81de6a254667eca5a24881e909e8f6e3f2c84a1f54b1db9272c/cortexapps_cli-1.14.0.tar.gz";
+      hash = "sha256-/FdwUjhJBJrJ3w5d6RB++xbsQ80dXuzVWPyT8ge3z8E=";
+      url = "https://files.pythonhosted.org/packages/f4/d5/69f42fa0232c9885ef6fac2d60e8f6d4d7b257bfef554c9a5c44ef4e6e7c/cortexapps_cli-1.15.0.tar.gz";
     };
     update = {
       strategy = "pypi-release";
     };
-    version = "1.14.0";
+    version = "1.15.0";
   };
   dotnet-counters = {
     nugetSha256 = "sha256-AYT06BqaY1IPA8YTlvLNdQQgmslKmZK6tS7s8Lm8Rss=";
@@ -94,20 +94,20 @@
   github-copilot-cli = {
     source = {
       aarch64-darwin = {
-        hash = "sha256-96ULkNa4lgPlYAw5SkbnvlodDz9TZfh+bQBg1VSDKng=";
-        url = "https://registry.npmjs.org/@github/copilot-darwin-arm64/-/copilot-darwin-arm64-1.0.27.tgz";
+        hash = "sha256-Nh/wBJAsHMvLBg/voVVCo1hPbnklzsfiFuy6gSV6bEY=";
+        url = "https://registry.npmjs.org/@github/copilot-darwin-arm64/-/copilot-darwin-arm64-1.0.28.tgz";
       };
       aarch64-linux = {
-        hash = "sha256-Pe0gEMHB9dD51/Yzo+f0j7+b/bF3LLEK6+OXCdoJmfw=";
-        url = "https://registry.npmjs.org/@github/copilot-linux-arm64/-/copilot-linux-arm64-1.0.27.tgz";
+        hash = "sha256-WcZFTV0d5RCkkHOCd0GMvbwa6KsW6Clj+9KGlKl5//I=";
+        url = "https://registry.npmjs.org/@github/copilot-linux-arm64/-/copilot-linux-arm64-1.0.28.tgz";
       };
       x86_64-darwin = {
-        hash = "sha256-0nMw82Rcf/kyOgeHEpekrmhg18SLcb8LWs6nKXfNHw8=";
-        url = "https://registry.npmjs.org/@github/copilot-darwin-x64/-/copilot-darwin-x64-1.0.27.tgz";
+        hash = "sha256-AXS0V/9XLcWc80Z0r0KCfxc2yql98sMfA/SItwdbFJE=";
+        url = "https://registry.npmjs.org/@github/copilot-darwin-x64/-/copilot-darwin-x64-1.0.28.tgz";
       };
       x86_64-linux = {
-        hash = "sha256-n80Xv2HfsDhw3sisVOUqNUKQWCiGLEW5lNPzn4SrwRs=";
-        url = "https://registry.npmjs.org/@github/copilot-linux-x64/-/copilot-linux-x64-1.0.27.tgz";
+        hash = "sha256-digc0JBi06+sE8HlfnXY4jR5Rg/Vf8L1oP/2jPOAV/s=";
+        url = "https://registry.npmjs.org/@github/copilot-linux-x64/-/copilot-linux-x64-1.0.28.tgz";
       };
     };
     update = {
@@ -123,7 +123,7 @@
         ignore = true;
       };
     };
-    version = "1.0.27";
+    version = "1.0.28";
   };
   jj-diffconflicts = {
     source = {
