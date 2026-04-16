@@ -1,29 +1,12 @@
 {
   buildNpmPackage,
   cacert,
-  chromium,
   dependencies,
   fetchFromGitHub,
   lib,
   makeWrapper,
-  playwright-driver,
-  stdenv,
 }: let
   dep = dependencies.playwright-cli;
-  wrapperArgs =
-    [
-      "--set"
-      "PLAYWRIGHT_BROWSERS_PATH"
-      "${playwright-driver.browsers}"
-      "--set"
-      "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD"
-      "1"
-    ]
-    ++ lib.optionals stdenv.isLinux [
-      "--set"
-      "PLAYWRIGHT_MCP_EXECUTABLE_PATH"
-      "${chromium}/bin/chromium"
-    ];
 in
   buildNpmPackage rec {
     pname = "playwright-cli";
@@ -43,7 +26,8 @@ in
       mkdir -p $out/share/opencode/skills
       cp -R skills/playwright-cli $out/share/opencode/skills/
 
-      wrapProgram $out/bin/playwright-cli ${lib.escapeShellArgs wrapperArgs}
+      wrapProgram $out/bin/playwright-cli \
+        --set PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD 1
     '';
 
     meta = with lib; {
