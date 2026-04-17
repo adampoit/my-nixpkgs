@@ -94,20 +94,20 @@
   github-copilot-cli = {
     source = {
       aarch64-darwin = {
-        hash = "sha256-Nh/wBJAsHMvLBg/voVVCo1hPbnklzsfiFuy6gSV6bEY=";
-        url = "https://registry.npmjs.org/@github/copilot-darwin-arm64/-/copilot-darwin-arm64-1.0.28.tgz";
+        hash = "sha256-AoiUSQ3lBkNA8iYUFygcGGtLb//mI7N5hcjcLwpwQ9E=";
+        url = "https://registry.npmjs.org/@github/copilot-darwin-arm64/-/copilot-darwin-arm64-1.0.31.tgz";
       };
       aarch64-linux = {
-        hash = "sha256-WcZFTV0d5RCkkHOCd0GMvbwa6KsW6Clj+9KGlKl5//I=";
-        url = "https://registry.npmjs.org/@github/copilot-linux-arm64/-/copilot-linux-arm64-1.0.28.tgz";
+        hash = "sha256-2K3LWPYZNRuPI/dfZ+KIgwCMnQxMPybyepJ35GaYgME=";
+        url = "https://registry.npmjs.org/@github/copilot-linux-arm64/-/copilot-linux-arm64-1.0.31.tgz";
       };
       x86_64-darwin = {
-        hash = "sha256-AXS0V/9XLcWc80Z0r0KCfxc2yql98sMfA/SItwdbFJE=";
-        url = "https://registry.npmjs.org/@github/copilot-darwin-x64/-/copilot-darwin-x64-1.0.28.tgz";
+        hash = "sha256-MW0p9jkdHPrucL8uOh5aWRPRuXZHmx8DAYkL2DgCpKc=";
+        url = "https://registry.npmjs.org/@github/copilot-darwin-x64/-/copilot-darwin-x64-1.0.31.tgz";
       };
       x86_64-linux = {
-        hash = "sha256-digc0JBi06+sE8HlfnXY4jR5Rg/Vf8L1oP/2jPOAV/s=";
-        url = "https://registry.npmjs.org/@github/copilot-linux-x64/-/copilot-linux-x64-1.0.28.tgz";
+        hash = "sha256-L0cXC9ri6H9OQhxHwqP7r43fxuGJ+tLDcSLCsZOZjfg=";
+        url = "https://registry.npmjs.org/@github/copilot-linux-x64/-/copilot-linux-x64-1.0.31.tgz";
       };
     };
     update = {
@@ -123,7 +123,7 @@
         ignore = true;
       };
     };
-    version = "1.0.28";
+    version = "1.0.31";
   };
   jj-diffconflicts = {
     source = {
