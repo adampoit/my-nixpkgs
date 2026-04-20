@@ -1,14 +1,14 @@
 {
   apm = {
     source = {
-      hash = "sha256-24bgypj2MHzRJaW+SXfwS7VamAgAkCuwZNcskPOKLig=";
-      url = "https://files.pythonhosted.org/packages/10/55/c14dde233a321162729552592e91de3ecfd68fe8ae56dd1d8341fee2ad0e/apm_cli-0.8.11.tar.gz";
+      hash = "sha256-MOQycAYdKgxQeRUmuCTEUAYapLER4f0+/qlAOkFUDeU=";
+      url = "https://files.pythonhosted.org/packages/99/76/fe415637b59dc40f96705e80e69cf6a1b4c14772dd5885383496aecf6edc/apm_cli-0.8.12.tar.gz";
     };
     update = {
       packageId = "apm-cli";
       strategy = "pypi-release";
     };
-    version = "0.8.11";
+    version = "0.8.12";
   };
   azure-ai-inference = {
     source = {
