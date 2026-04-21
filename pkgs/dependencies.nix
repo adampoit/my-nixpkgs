@@ -94,20 +94,20 @@
   github-copilot-cli = {
     source = {
       aarch64-darwin = {
-        hash = "sha256-atmEfMMOTS7lAosej4Mn3pOZA/aHBlOz1MJbsS5/bns=";
-        url = "https://registry.npmjs.org/@github/copilot-darwin-arm64/-/copilot-darwin-arm64-1.0.32.tgz";
+        hash = "sha256-EdKcKC3yoJhfn6BkqZiK3/kh805Qh3pui7BsJH13r1w=";
+        url = "https://registry.npmjs.org/@github/copilot-darwin-arm64/-/copilot-darwin-arm64-1.0.34.tgz";
       };
       aarch64-linux = {
-        hash = "sha256-xfpImsQIVqwlWfeKLsMgUToBtpYzQ4BAhgbFDGEQ/2w=";
-        url = "https://registry.npmjs.org/@github/copilot-linux-arm64/-/copilot-linux-arm64-1.0.32.tgz";
+        hash = "sha256-f3pMfuCAS3JATaqHpSape7pSBJtOmmz0s7cVze9H3cI=";
+        url = "https://registry.npmjs.org/@github/copilot-linux-arm64/-/copilot-linux-arm64-1.0.34.tgz";
       };
       x86_64-darwin = {
-        hash = "sha256-cvDiiRADjrZGbZiFu3AUmAs9PmRJdgM5poia2qbY3Ig=";
-        url = "https://registry.npmjs.org/@github/copilot-darwin-x64/-/copilot-darwin-x64-1.0.32.tgz";
+        hash = "sha256-BGdbv8mM0SJoRgLKzJiOA1qx9uULvFswbqogfgoyb24=";
+        url = "https://registry.npmjs.org/@github/copilot-darwin-x64/-/copilot-darwin-x64-1.0.34.tgz";
       };
       x86_64-linux = {
-        hash = "sha256-AHsWdTkcpsUSfNyyzY3xCvJIMZjDhNLMpMoje7VW5iM=";
-        url = "https://registry.npmjs.org/@github/copilot-linux-x64/-/copilot-linux-x64-1.0.32.tgz";
+        hash = "sha256-8LJqYX7hF5i/zTFEfYjK7jd9NL/I0JvWq7O+rVDQq7w=";
+        url = "https://registry.npmjs.org/@github/copilot-linux-x64/-/copilot-linux-x64-1.0.34.tgz";
       };
     };
     update = {
@@ -123,7 +123,7 @@
         ignore = true;
       };
     };
-    version = "1.0.32";
+    version = "1.0.34";
   };
   jj-diffconflicts = {
     source = {
@@ -185,10 +185,10 @@
   };
   skills-ref = {
     source = {
-      hash = "sha256-N6/ubnBv5AzGhku60FmmNZav+FDEj7hvJF/5U+yHswQ=";
+      hash = "sha256-Uoat2oSmUkKgB9Q77ARxiUi2QaCHh0Qdc31DavgP7mE=";
       owner = "agentskills";
       repo = "agentskills";
-      rev = "8d8fcbc69e0c42e05922c2ffc287a3bbdef7b0a3";
+      rev = "d30accd65ba3cf433755aa74cb93109417a55108";
     };
     sourceSubdir = "skills-ref";
     update = {
