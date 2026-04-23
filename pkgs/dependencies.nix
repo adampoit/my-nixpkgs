@@ -1,14 +1,14 @@
 {
   apm = {
     source = {
-      hash = "sha256-9pK4e/LczGPNZ6Hp4wMhRsBFkdjKSYzxQtt5IPNKin4=";
-      url = "https://files.pythonhosted.org/packages/29/98/53fa409e60a96417dc6762374a27280028cba2ca4c048319e5391b52cb46/apm_cli-0.9.0.tar.gz";
+      hash = "sha256-hWh8A0+0LjLRjVKqy4awQp+6/z38JDD916zHPOMBxHM=";
+      url = "https://files.pythonhosted.org/packages/3f/04/8f06a7d6adbfef5cc23473a9d210ca23da9dae19316e73c08ccc3871e420/apm_cli-0.9.2.tar.gz";
     };
     update = {
       packageId = "apm-cli";
       strategy = "pypi-release";
     };
-    version = "0.9.0";
+    version = "0.9.2";
   };
   azure-ai-inference = {
     source = {
@@ -185,10 +185,10 @@
   };
   skills-ref = {
     source = {
-      hash = "sha256-Uoat2oSmUkKgB9Q77ARxiUi2QaCHh0Qdc31DavgP7mE=";
+      hash = "sha256-ulh77OnTtEP2zEIw9wvuajh89Okg8ekI/7OE7ZKQ1Uk=";
       owner = "agentskills";
       repo = "agentskills";
-      rev = "d30accd65ba3cf433755aa74cb93109417a55108";
+      rev = "2d3e01f590f68bee2cb76a3200823e93b2cc9eaa";
     };
     sourceSubdir = "skills-ref";
     update = {
