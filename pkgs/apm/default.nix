@@ -33,6 +33,7 @@ in
       requests
       rich
       rich-click
+      ruamel-yaml
       toml
       watchdog
     ];
