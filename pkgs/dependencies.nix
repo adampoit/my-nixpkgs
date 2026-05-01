@@ -71,6 +71,17 @@
     };
     version = "1.4.0";
   };
+  repo-conventions = {
+    nugetSha256 = "sha256-zMgIcD/Q38OJhEZxBnfSvr9ensR51dXXL7P7+SqTZzI=";
+    update = {
+      hashFields = [
+        "nugetSha256"
+      ];
+      packageId = "repo-conventions";
+      strategy = "nuget-release";
+    };
+    version = "0.1.27";
+  };
   gh-workflow-stats = {
     source = {
       hash = "sha256-DTVthvrOKVJbEsL1fQd71vjHluxK6WadahlpPx/sfV4=";

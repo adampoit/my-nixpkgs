@@ -30,6 +30,7 @@
       "github-copilot-cli"
       "llm-github-models"
       "playwright-cli"
+      "repo-conventions"
       "skills-ref"
       "vscode-firefox-debug"
       "zsh-yarn-autocompletions"
