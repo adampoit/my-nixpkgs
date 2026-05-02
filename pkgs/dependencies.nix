@@ -71,17 +71,6 @@
     };
     version = "1.4.0";
   };
-  repo-conventions = {
-    nugetSha256 = "sha256-zMgIcD/Q38OJhEZxBnfSvr9ensR51dXXL7P7+SqTZzI=";
-    update = {
-      hashFields = [
-        "nugetSha256"
-      ];
-      packageId = "repo-conventions";
-      strategy = "nuget-release";
-    };
-    version = "0.1.27";
-  };
   gh-workflow-stats = {
     source = {
       hash = "sha256-DTVthvrOKVJbEsL1fQd71vjHluxK6WadahlpPx/sfV4=";
@@ -105,20 +94,20 @@
   github-copilot-cli = {
     source = {
       aarch64-darwin = {
-        hash = "sha256-X3820Ex5sVV68IXbfrckqQValrWxywp0ankmRO+5wY0=";
-        url = "https://registry.npmjs.org/@github/copilot-darwin-arm64/-/copilot-darwin-arm64-1.0.39.tgz";
+        hash = "sha256-NOigBg6XOH/XiZ41euTdyHzKXzajW9PeR2NHvpe0P04=";
+        url = "https://registry.npmjs.org/@github/copilot-darwin-arm64/-/copilot-darwin-arm64-1.0.40.tgz";
       };
       aarch64-linux = {
-        hash = "sha256-WR4ukJkwqspuoLEl9o6V1YNZGxIxnsOrRbFzWJSqNUc=";
-        url = "https://registry.npmjs.org/@github/copilot-linux-arm64/-/copilot-linux-arm64-1.0.39.tgz";
+        hash = "sha256-ijzEoTdZCPRjBEytlQsVpB+yWJEUWhgWEG0sh9RpZcY=";
+        url = "https://registry.npmjs.org/@github/copilot-linux-arm64/-/copilot-linux-arm64-1.0.40.tgz";
       };
       x86_64-darwin = {
-        hash = "sha256-MolLGplVKu0x2a9abCxZRcR5ZUzuASHBK0fuOi/Eflc=";
-        url = "https://registry.npmjs.org/@github/copilot-darwin-x64/-/copilot-darwin-x64-1.0.39.tgz";
+        hash = "sha256-/49IW3ujFR3+unU/Rgx2N+UUuOAu6LuYrdQ2EqoUVrY=";
+        url = "https://registry.npmjs.org/@github/copilot-darwin-x64/-/copilot-darwin-x64-1.0.40.tgz";
       };
       x86_64-linux = {
-        hash = "sha256-Z4bT6SI1SCDH2XDkLWX33ViYsOSk1azsf5YTRj/mfEc=";
-        url = "https://registry.npmjs.org/@github/copilot-linux-x64/-/copilot-linux-x64-1.0.39.tgz";
+        hash = "sha256-cVtcN3q8kbTUHR53zBdJHVxKXtluKsHSDSNNsqivYUI=";
+        url = "https://registry.npmjs.org/@github/copilot-linux-x64/-/copilot-linux-x64-1.0.40.tgz";
       };
     };
     update = {
@@ -134,7 +123,7 @@
         ignore = true;
       };
     };
-    version = "1.0.39";
+    version = "1.0.40";
   };
   jj-diffconflicts = {
     source = {
@@ -160,12 +149,12 @@
     version = "0.18.0";
   };
   playwright-cli = {
-    npmDepsHash = "sha256-iJl7AnvbW2deU9rYp9Pks2+Dtv4dMSwK26uuG0uQnBs=";
+    npmDepsHash = "sha256-vt/dQU3DPN+2U73KJQVJCBoqC1XLxdCDaUPUO9092Ok=";
     source = {
-      hash = "sha256-dxv4bjwLKlsBC6pQhOOYyLD5Zo8WBvnqipLwJ0YpcDE=";
+      hash = "sha256-tmFXB4c3EXh6GLVphiQUbaUEjf2e0CI9k1YI9a2Yn2w=";
       owner = "microsoft";
       repo = "playwright-cli";
-      rev = "v0.1.10";
+      rev = "v0.1.11";
     };
     update = {
       hashFields = [
@@ -177,7 +166,18 @@
         stripPrefix = "v";
       };
     };
-    version = "0.1.10";
+    version = "0.1.11";
+  };
+  repo-conventions = {
+    nugetSha256 = "sha256-YI78SLjzwkcgjqWT145dadaAfN0DMHBJBGW9arxOIqU=";
+    update = {
+      hashFields = [
+        "nugetSha256"
+      ];
+      packageId = "repo-conventions";
+      strategy = "nuget-release";
+    };
+    version = "0.1.28";
   };
   screenkey = {
     source = {
