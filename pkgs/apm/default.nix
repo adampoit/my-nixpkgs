@@ -25,6 +25,7 @@ in
     propagatedBuildInputs = with python3Packages; [
       click
       colorama
+      filelock
       gitpython
       llm
       llm-github-models

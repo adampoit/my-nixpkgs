@@ -1,14 +1,14 @@
 {
   apm = {
     source = {
-      hash = "sha256-mfmTrBo0Fxp1PBs9q7hZMagP/Fv4TdYNagAEN9tzUwQ=";
-      url = "https://files.pythonhosted.org/packages/1e/a0/5df7aa1fce762a8e683b9257acabd8c9ced9328aaa2bbec592c5cfae80f0/apm_cli-0.12.0.tar.gz";
+      hash = "sha256-SB1lYVImadqo740weUDAXYDlcLdI5LOGpG62H5JxTos=";
+      url = "https://files.pythonhosted.org/packages/17/c4/7a64c2524da6ab36299a120f95ff725dbcadba9d05c345c0747e2dcf9e3b/apm_cli-0.12.1.tar.gz";
     };
     update = {
       packageId = "apm-cli";
       strategy = "pypi-release";
     };
-    version = "0.12.0";
+    version = "0.12.1";
   };
   azure-ai-inference = {
     source = {
@@ -169,7 +169,7 @@
     version = "0.1.11";
   };
   repo-conventions = {
-    nugetSha256 = "sha256-YI78SLjzwkcgjqWT145dadaAfN0DMHBJBGW9arxOIqU=";
+    nugetSha256 = "sha256-bZ2Huzd6mhDjUfntEg3JbJCIm0zI1m1mPgto7pwHBwg=";
     update = {
       hashFields = [
         "nugetSha256"
@@ -177,7 +177,7 @@
       packageId = "repo-conventions";
       strategy = "nuget-release";
     };
-    version = "0.1.28";
+    version = "0.1.29";
   };
   screenkey = {
     source = {
