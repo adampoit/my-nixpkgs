@@ -1,14 +1,14 @@
 {
   apm = {
     source = {
-      hash = "sha256-7JDVnieiD31DHWQuSYo77Cnv/ZgQMPXsaB9eKiqXMyQ=";
-      url = "https://files.pythonhosted.org/packages/51/b1/cd43f987dcaeeee701c227e41a26ee1b10a05517c460f80e26557c66ef3d/apm_cli-0.12.3.tar.gz";
+      hash = "sha256-AfXk4lvhI4TagXwzPuDwFjFLZ4IUV1i1DFV1w7xfwv4=";
+      url = "https://files.pythonhosted.org/packages/9b/d1/de9c8b499d02fb9e9fac771aa83ec1a19daecbefb986cf29a97b971b5eb0/apm_cli-0.12.4.tar.gz";
     };
     update = {
       packageId = "apm-cli";
       strategy = "pypi-release";
     };
-    version = "0.12.3";
+    version = "0.12.4";
   };
   azure-ai-inference = {
     source = {
@@ -149,12 +149,12 @@
     version = "0.18.0";
   };
   playwright-cli = {
-    npmDepsHash = "sha256-oFoojfJNWI7Ku4kY56An0lK3QkDUeEnn74bR1A6Uuhw=";
+    npmDepsHash = "sha256-Ulp6IttsZcOOA7LaYDpVKkBYbe2j4RFG8lJARWifOSk=";
     source = {
-      hash = "sha256-g7MRcSLK4ykt/fGtovoRDeHVnzMfn6/T4DYXhI+qy8s=";
+      hash = "sha256-hHK/GR5Drlt+e0L9kyNmn+ht1PCrVH6WrVbxGB1Wsxg=";
       owner = "microsoft";
       repo = "playwright-cli";
-      rev = "v0.1.12";
+      rev = "v0.1.13";
     };
     update = {
       hashFields = [
@@ -166,7 +166,7 @@
         stripPrefix = "v";
       };
     };
-    version = "0.1.12";
+    version = "0.1.13";
   };
   repo-conventions = {
     nugetSha256 = "sha256-Jiejg2mGmyrQNVsIu1RxemLBKe4mpFRpUY8e4D0uoMM=";
