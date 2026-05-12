@@ -1,14 +1,14 @@
 {
   apm = {
     source = {
-      hash = "sha256-AfXk4lvhI4TagXwzPuDwFjFLZ4IUV1i1DFV1w7xfwv4=";
-      url = "https://files.pythonhosted.org/packages/9b/d1/de9c8b499d02fb9e9fac771aa83ec1a19daecbefb986cf29a97b971b5eb0/apm_cli-0.12.4.tar.gz";
+      hash = "sha256-l3mcWKfJ6ppgbXlZVlCq0RZ1+I+w8pcjbMveNMuIW+k=";
+      url = "https://files.pythonhosted.org/packages/2d/f9/fd556b105b7cb9be4530726d651e000d7f2d2e6c96a463e90b0e6532e103/apm_cli-0.13.0.tar.gz";
     };
     update = {
       packageId = "apm-cli";
       strategy = "pypi-release";
     };
-    version = "0.12.4";
+    version = "0.13.0";
   };
   azure-ai-inference = {
     source = {
@@ -94,20 +94,20 @@
   github-copilot-cli = {
     source = {
       aarch64-darwin = {
-        hash = "sha256-jTj/8UQUzmSpll2PII4QJfMYp2/FQhRfxP1iO6bRvHI=";
-        url = "https://registry.npmjs.org/@github/copilot-darwin-arm64/-/copilot-darwin-arm64-1.0.44.tgz";
+        hash = "sha256-Z2qZRwpEegUzk04ZneDKhk93LOLs4xB7MP6KEP4fBa0=";
+        url = "https://registry.npmjs.org/@github/copilot-darwin-arm64/-/copilot-darwin-arm64-1.0.45.tgz";
       };
       aarch64-linux = {
-        hash = "sha256-RVN1gwJ20737xnt7bTeMFIkRH2UESNHg6TWbCl80FqU=";
-        url = "https://registry.npmjs.org/@github/copilot-linux-arm64/-/copilot-linux-arm64-1.0.44.tgz";
+        hash = "sha256-ksB69UDOH6CUWKwOyfuumzuaRgC5s19bdFtWMmCVePQ=";
+        url = "https://registry.npmjs.org/@github/copilot-linux-arm64/-/copilot-linux-arm64-1.0.45.tgz";
       };
       x86_64-darwin = {
-        hash = "sha256-2s8f77X+krn4t0VKiBB2rxj85ZeryL0YsvmNcZKLJG8=";
-        url = "https://registry.npmjs.org/@github/copilot-darwin-x64/-/copilot-darwin-x64-1.0.44.tgz";
+        hash = "sha256-7cQN0iewDEpzaRG8sMpOkEnHqjSBhpPrh68qGfkn++c=";
+        url = "https://registry.npmjs.org/@github/copilot-darwin-x64/-/copilot-darwin-x64-1.0.45.tgz";
       };
       x86_64-linux = {
-        hash = "sha256-L39vRPMArG0NgQF7/cZKpJSkiC/25d7z9CBKBh9+aWE=";
-        url = "https://registry.npmjs.org/@github/copilot-linux-x64/-/copilot-linux-x64-1.0.44.tgz";
+        hash = "sha256-kdFAI/7otDGTqinHJV9iLzWvCwqpnh1mhqQnRiAYtkY=";
+        url = "https://registry.npmjs.org/@github/copilot-linux-x64/-/copilot-linux-x64-1.0.45.tgz";
       };
     };
     update = {
@@ -123,7 +123,7 @@
         ignore = true;
       };
     };
-    version = "1.0.44";
+    version = "1.0.45";
   };
   jj-diffconflicts = {
     source = {
