@@ -94,20 +94,20 @@
   github-copilot-cli = {
     source = {
       aarch64-darwin = {
-        hash = "sha256-jLFNKY6n9bG1o4bpmQoFMv8fRzvNNODYbHzkwEcNxO8=";
-        url = "https://registry.npmjs.org/@github/copilot-darwin-arm64/-/copilot-darwin-arm64-1.0.46.tgz";
+        hash = "sha256-X/owerTpLi3kyTLj9TLXDgOimV2evzD2wU4xcCdVU3Y=";
+        url = "https://registry.npmjs.org/@github/copilot-darwin-arm64/-/copilot-darwin-arm64-1.0.47.tgz";
       };
       aarch64-linux = {
-        hash = "sha256-hZm1EJuf4fEdn8WD+6xNwkdyvqNeVgichwnylzGL/eE=";
-        url = "https://registry.npmjs.org/@github/copilot-linux-arm64/-/copilot-linux-arm64-1.0.46.tgz";
+        hash = "sha256-NttWpQsStpr8GBaclMUckW0FZYhZv6hN7057yPEG07E=";
+        url = "https://registry.npmjs.org/@github/copilot-linux-arm64/-/copilot-linux-arm64-1.0.47.tgz";
       };
       x86_64-darwin = {
-        hash = "sha256-SjUyvjukFSVMGEDI4OnCehAZX5TATKsnv5J4oIhqPwE=";
-        url = "https://registry.npmjs.org/@github/copilot-darwin-x64/-/copilot-darwin-x64-1.0.46.tgz";
+        hash = "sha256-gVCC0kjHZivQXFWeP1VvraoHMqmgXZtDM77L6cKJKNw=";
+        url = "https://registry.npmjs.org/@github/copilot-darwin-x64/-/copilot-darwin-x64-1.0.47.tgz";
       };
       x86_64-linux = {
-        hash = "sha256-fNBwxDyvz8U12TRYuw738hnJl4FD02LYwmqBN4X4jlE=";
-        url = "https://registry.npmjs.org/@github/copilot-linux-x64/-/copilot-linux-x64-1.0.46.tgz";
+        hash = "sha256-746zeI+Kn6Sbqdd/H/+8ixvlbt1/2IQ4WWSQWFVvbSg=";
+        url = "https://registry.npmjs.org/@github/copilot-linux-x64/-/copilot-linux-x64-1.0.47.tgz";
       };
     };
     update = {
@@ -123,7 +123,7 @@
         ignore = true;
       };
     };
-    version = "1.0.46";
+    version = "1.0.47";
   };
   jj-diffconflicts = {
     source = {
@@ -169,7 +169,7 @@
     version = "0.1.13";
   };
   repo-conventions = {
-    nugetSha256 = "sha256-Jiejg2mGmyrQNVsIu1RxemLBKe4mpFRpUY8e4D0uoMM=";
+    nugetSha256 = "sha256-99WdVX7zxDCH/0zGJXcIORSepd2anmgOFuIsuibkM0Y=";
     update = {
       hashFields = [
         "nugetSha256"
@@ -177,7 +177,7 @@
       packageId = "repo-conventions";
       strategy = "nuget-release";
     };
-    version = "0.1.30";
+    version = "0.1.34";
   };
   screenkey = {
     source = {
