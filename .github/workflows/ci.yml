@@ -14,22 +14,41 @@ permissions:
   contents: read
 
 jobs:
+  packages:
+    name: compute package matrix
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.packages.outputs.packages }}
+      release-tags: ${{ steps.packages.outputs.release-tags }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Compute packages
+        id: packages
+        run: |
+          set -euo pipefail
+          packages=$(find pkgs -mindepth 2 -maxdepth 2 -name default.nix -exec dirname {} \; | xargs -n1 basename | sort)
+          packages_json=$(jq -cn --args '$ARGS.positional' -- $packages)
+          release_tags=$(printf 'nix-cache-%s\n' $packages | paste -sd, -)
+          printf 'packages=%s\n' "$packages_json" >> "$GITHUB_OUTPUT"
+          printf 'release-tags=%s\n' "$release_tags" >> "$GITHUB_OUTPUT"
+
   build:
     name: build (${{ matrix.name }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90
+    needs: packages
     permissions:
-      contents: write
+      contents: read
     strategy:
       fail-fast: false
       matrix:
         include:
           - name: linux
             os: ubuntu-latest
-            cache_path: linux
           - name: darwin
             os: macos-latest
-            cache_path: darwin
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -39,7 +58,7 @@ jobs:
 
       - name: Configure repository cache
         env:
-          CACHE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ matrix.cache_path }}
+          CACHE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
           CACHE_KEY: ${{ vars.NIX_CACHE_PUBLIC_KEY }}
         run: |
           set -euo pipefail
@@ -49,25 +68,109 @@ jobs:
             printf '%s\n' "extra-trusted-public-keys = $CACHE_KEY" >> ~/.config/nix/nix.conf
           fi
 
-      - name: Build Nix output
+      - name: Build and export package caches
+        env:
+          PACKAGES: ${{ needs.packages.outputs.packages }}
+          PLATFORM: ${{ matrix.name }}
+          SIGNING_KEY: ${{ secrets.NIX_CACHE_SIGNING_KEY }}
         run: |
           set -euo pipefail
-          nix build .#default --print-build-logs --print-out-paths | tee /tmp/static-nix-cache-paths.txt
+          export_root="/tmp/static-nix-cache-save/${PLATFORM}"
+          mkdir -p "$export_root"
 
-      - name: Save Nix binary
+          key_file=""
+          if [ -n "$SIGNING_KEY" ]; then
+            key_file=$(mktemp)
+            chmod 600 "$key_file"
+            echo "$SIGNING_KEY" > "$key_file"
+            trap 'rm -f "$key_file"' EXIT
+          fi
+
+          jq -r '.[]' <<< "$PACKAGES" | while IFS= read -r package; do
+            package_dir="$export_root/$package"
+            mkdir -p "$package_dir/nix-cache"
+
+            echo "::group::Build $package"
+            nix build ".#$package" --print-build-logs --print-out-paths | tee "$package_dir/store-paths.txt"
+            echo "::endgroup::"
+
+            echo "::group::Export $package"
+            while IFS= read -r path; do
+              [ -z "$path" ] && continue
+              nix copy --to "file://$package_dir/nix-cache" "$path" --no-check-sigs
+              if [ -n "$key_file" ]; then
+                nix store sign --store "file://$package_dir/nix-cache" --key-file "$key_file" --recursive "$path"
+              fi
+            done < "$package_dir/store-paths.txt"
+            echo "::endgroup::"
+          done
+
+      - name: Upload platform cache artifact
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: adampoit/static-nix-cache/save@6df39676383b29458fd62852df758da6b46005c7
+        uses: actions/upload-artifact@v4
         with:
-          paths-file: /tmp/static-nix-cache-paths.txt
-          name: ${{ matrix.name }}
-          signing-key: ${{ secrets.NIX_CACHE_SIGNING_KEY }}
+          name: static-nix-cache-${{ matrix.name }}
+          path: /tmp/static-nix-cache-save/${{ matrix.name }}
+          retention-days: 1
 
-  publish_nix_cache:
-    name: publish nix cache
+  publish_package_caches:
+    name: publish nix cache (${{ matrix.package }})
     runs-on: ubuntu-latest
     timeout-minutes: 60
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: build
+    needs:
+      - packages
+      - build
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJson(needs.packages.outputs.packages) }}
+    steps:
+      - name: Setup Nix
+        uses: nixbuild/nix-quick-install-action@v34
+
+      - name: Download platform cache artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: static-nix-cache-*
+          path: /tmp/static-nix-cache-platforms
+
+      - name: Merge package cache artifacts
+        env:
+          PACKAGE: ${{ matrix.package }}
+        run: |
+          set -euo pipefail
+          aggregate="/tmp/static-nix-cache-aggregate/$PACKAGE"
+          mkdir -p "$aggregate/nix-cache"
+          : > "$aggregate/store-paths.txt"
+
+          for package_dir in /tmp/static-nix-cache-platforms/static-nix-cache-*/"$PACKAGE"; do
+            [ -d "$package_dir" ] || continue
+            cat "$package_dir/store-paths.txt" >> "$aggregate/store-paths.txt"
+            cp -R "$package_dir/nix-cache/." "$aggregate/nix-cache/"
+          done
+
+          sort -u -o "$aggregate/store-paths.txt" "$aggregate/store-paths.txt"
+          test -s "$aggregate/store-paths.txt"
+
+      - name: Publish package cache release
+        uses: adampoit/static-nix-cache/deploy@master
+        with:
+          paths-file: /tmp/static-nix-cache-aggregate/${{ matrix.package }}/store-paths.txt
+          export-dir: /tmp/static-nix-cache-aggregate/${{ matrix.package }}/nix-cache
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-release-tag: nix-cache-${{ matrix.package }}
+
+  publish_nix_cache:
+    name: publish nix cache site
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs:
+      - packages
+      - publish_package_caches
     permissions:
       contents: write
       pages: write
@@ -79,21 +182,13 @@ jobs:
       - name: Setup Nix
         uses: nixbuild/nix-quick-install-action@v34
 
-      - name: Generate Linux cache site
-        uses: adampoit/static-nix-cache/deploy@6df39676383b29458fd62852df758da6b46005c7
+      - name: Generate merged cache site
+        uses: adampoit/static-nix-cache/deploy@master
         with:
-          artifact-pattern: static-nix-cache-linux
+          artifact-pattern: static-nix-cache-no-artifacts-to-deploy
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          github-release-tag: nix-cache-linux
-          static: ./site/linux
-
-      - name: Generate Darwin cache site
-        uses: adampoit/static-nix-cache/deploy@6df39676383b29458fd62852df758da6b46005c7
-        with:
-          artifact-pattern: static-nix-cache-darwin
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          github-release-tag: nix-cache-darwin
-          static: ./site/darwin
+          github-release-tags: ${{ needs.packages.outputs.release-tags }}
+          static: ./site
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3
