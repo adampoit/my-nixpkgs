@@ -28,9 +28,9 @@ jobs:
         id: packages
         run: |
           set -euo pipefail
-          packages=$(find pkgs -mindepth 2 -maxdepth 2 -name default.nix -exec dirname {} \; | xargs -n1 basename | sort)
-          packages_json=$(jq -cn --args '$ARGS.positional' -- $packages)
-          release_tags=$(for platform in linux darwin; do printf '%s\n' $packages | sed "s/^/nix-cache-$platform-/"; done | paste -sd, -)
+          mapfile -t packages < <(find pkgs -mindepth 2 -maxdepth 2 -name default.nix -exec dirname {} \; | while IFS= read -r dir; do basename "$dir"; done | sort)
+          packages_json=$(jq -cn --args '$ARGS.positional' -- "${packages[@]}")
+          release_tags=$(for platform in linux darwin; do printf 'nix-cache-%s-%s\n' "$platform" "${packages[@]}"; done | paste -sd, -)
           printf 'packages=%s\n' "$packages_json" >> "$GITHUB_OUTPUT"
           printf 'release-tags=%s\n' "$release_tags" >> "$GITHUB_OUTPUT"
 
@@ -40,7 +40,7 @@ jobs:
     timeout-minutes: 90
     needs: packages
     permissions:
-      contents: write
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -53,22 +53,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Checkout static-nix-cache
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/checkout@v6
-        with:
-          repository: adampoit/static-nix-cache
-          ref: master
-          path: static-nix-cache-source
-
       - name: Setup Nix
         uses: nixbuild/nix-quick-install-action@v34
-
-      - name: Install static-nix-cache
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          set -euo pipefail
-          npm ci --prefix static-nix-cache-source --ignore-scripts --silent
 
       - name: Configure repository cache
         env:
@@ -82,87 +68,26 @@ jobs:
             printf '%s\n' "extra-trusted-public-keys = $CACHE_KEY" >> ~/.config/nix/nix.conf
           fi
 
-      - name: Build packages and publish platform package releases
+      - name: Build packages
         env:
           PACKAGES: ${{ needs.packages.outputs.packages }}
-          PLATFORM: ${{ matrix.name }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_OWNER: ${{ github.repository_owner }}
-          GITHUB_REPO: ${{ github.event.repository.name }}
-          SIGNING_KEY: ${{ secrets.NIX_CACHE_SIGNING_KEY }}
-          SHOULD_PUBLISH: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         run: |
           set -euo pipefail
-
-          key_file=""
-          if [ -n "$SIGNING_KEY" ]; then
-            key_file=$(mktemp)
-            chmod 600 "$key_file"
-            echo "$SIGNING_KEY" > "$key_file"
-            trap 'rm -f "$key_file"' EXIT
-          fi
-
-          publish_package() {
-            local package="$1"
-            local package_dir="$2"
-            local release_tag="nix-cache-${PLATFORM}-${package}"
-            local port="18734"
-            local log_file="/tmp/static-nix-cache-${release_tag}.log"
-
-            export STORAGE_BACKEND=github-releases
-            export GITHUB_RELEASE_TAG="$release_tag"
-            export PORT="$port"
-
-            node static-nix-cache-source/index.js > "$log_file" 2>&1 &
-            local server_pid=$!
-            trap 'kill "$server_pid" 2>/dev/null || true; [ -n "$key_file" ] && rm -f "$key_file"' EXIT
-
-            for _ in $(seq 1 30); do
-              if curl -sf "http://localhost:${port}/nix-cache-info" >/dev/null 2>&1; then
-                break
-              fi
-              if ! kill -0 "$server_pid" 2>/dev/null; then
-                echo "::error::static-nix-cache server exited unexpectedly"
-                cat "$log_file"
-                exit 1
-              fi
-              sleep 1
-            done
-
-            while IFS= read -r path; do
-              [ -z "$path" ] && continue
-              nix copy --from "file://$package_dir/nix-cache" --to "http://localhost:${port}" --no-check-sigs "$path"
-            done < "$package_dir/store-paths.txt"
-
-            kill "$server_pid" 2>/dev/null || true
-            trap '[ -n "$key_file" ] && rm -f "$key_file"' EXIT
-          }
+          mkdir -p /tmp/static-nix-cache-paths
 
           jq -r '.[]' <<< "$PACKAGES" | while IFS= read -r package; do
-            package_dir="/tmp/static-nix-cache-save/$package"
-            rm -rf "$package_dir"
-            mkdir -p "$package_dir/nix-cache"
-
             echo "::group::Build $package"
-            nix build ".#$package" --print-build-logs --print-out-paths | tee "$package_dir/store-paths.txt"
+            nix build ".#$package" --print-build-logs --print-out-paths | tee "/tmp/static-nix-cache-paths/$package.txt"
             echo "::endgroup::"
-
-            echo "::group::Export $package"
-            while IFS= read -r path; do
-              [ -z "$path" ] && continue
-              nix copy --to "file://$package_dir/nix-cache" "$path" --no-check-sigs
-              if [ -n "$key_file" ]; then
-                nix store sign --store "file://$package_dir/nix-cache" --key-file "$key_file" --recursive "$path"
-              fi
-            done < "$package_dir/store-paths.txt"
-            echo "::endgroup::"
-
-            if [ "$SHOULD_PUBLISH" = "true" ]; then
-              echo "::group::Publish nix-cache-${PLATFORM}-${package}"
-              publish_package "$package" "$package_dir"
-              echo "::endgroup::"
-            fi
           done
+
+      - name: Save package cache artifacts
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: adampoit/static-nix-cache/save@master
+        with:
+          name: ${{ matrix.name }}
+          paths-dir: /tmp/static-nix-cache-paths
+          signing-key: ${{ secrets.NIX_CACHE_SIGNING_KEY }}
 
   publish_nix_cache:
     name: publish nix cache site
@@ -186,7 +111,6 @@ jobs:
       - name: Generate merged cache site
         uses: adampoit/static-nix-cache/deploy@master
         with:
-          artifact-pattern: static-nix-cache-no-artifacts-to-deploy
           github-token: ${{ secrets.GITHUB_TOKEN }}
           github-release-tags: ${{ needs.packages.outputs.release-tags }}
           static: ./site

@@ -69,6 +69,18 @@
 
     formatter = forEachSystem (system: (mkPkgs system).alejandra);
 
+    devShells = forEachSystem (
+      system: let
+        pkgs = mkPkgs system;
+      in {
+        default = pkgs.mkShell {
+          packages = [
+            pkgs.actionlint
+          ];
+        };
+      }
+    );
+
     packages = forEachSystem (
       system: let
         pkgs = mkPkgs system;
