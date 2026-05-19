@@ -1,14 +1,14 @@
 {
   apm = {
     source = {
-      hash = "sha256-l3mcWKfJ6ppgbXlZVlCq0RZ1+I+w8pcjbMveNMuIW+k=";
-      url = "https://files.pythonhosted.org/packages/2d/f9/fd556b105b7cb9be4530726d651e000d7f2d2e6c96a463e90b0e6532e103/apm_cli-0.13.0.tar.gz";
+      hash = "sha256-LrC5h8ZUyIjHVgwhG9TH9gYK4JEkrIFtzPnOE5sgrSU=";
+      url = "https://files.pythonhosted.org/packages/aa/97/fceb6e6155a7b94ab5414cb9d98b8e0d633872de218bb78c80371e1d5a7a/apm_cli-0.14.0.tar.gz";
     };
     update = {
       packageId = "apm-cli";
       strategy = "pypi-release";
     };
-    version = "0.13.0";
+    version = "0.14.0";
   };
   azure-ai-inference = {
     source = {
@@ -24,13 +24,13 @@
   };
   cortexapps-cli = {
     source = {
-      hash = "sha256-/FdwUjhJBJrJ3w5d6RB++xbsQ80dXuzVWPyT8ge3z8E=";
-      url = "https://files.pythonhosted.org/packages/f4/d5/69f42fa0232c9885ef6fac2d60e8f6d4d7b257bfef554c9a5c44ef4e6e7c/cortexapps_cli-1.15.0.tar.gz";
+      hash = "sha256-a89Paa+mBj2VkcZVoUnzo4lixLnSoDhn0y5x4yTPYEg=";
+      url = "https://files.pythonhosted.org/packages/b5/e4/7ba17f6f7961fe73e3de8b83413fab92b470d2fb1a67780e68a567ebae90/cortexapps_cli-1.16.0.tar.gz";
     };
     update = {
       strategy = "pypi-release";
     };
-    version = "1.15.0";
+    version = "1.16.0";
   };
   dotnet-counters = {
     nugetSha256 = "sha256-AYT06BqaY1IPA8YTlvLNdQQgmslKmZK6tS7s8Lm8Rss=";
@@ -94,20 +94,20 @@
   github-copilot-cli = {
     source = {
       aarch64-darwin = {
-        hash = "sha256-X/owerTpLi3kyTLj9TLXDgOimV2evzD2wU4xcCdVU3Y=";
-        url = "https://registry.npmjs.org/@github/copilot-darwin-arm64/-/copilot-darwin-arm64-1.0.47.tgz";
+        hash = "sha256-405QWNfGwWif3wHrJP+ZC7fWprK2kFEs9H6S3uIoATo=";
+        url = "https://registry.npmjs.org/@github/copilot-darwin-arm64/-/copilot-darwin-arm64-1.0.50.tgz";
       };
       aarch64-linux = {
-        hash = "sha256-NttWpQsStpr8GBaclMUckW0FZYhZv6hN7057yPEG07E=";
-        url = "https://registry.npmjs.org/@github/copilot-linux-arm64/-/copilot-linux-arm64-1.0.47.tgz";
+        hash = "sha256-nbkBfeUCftazxxxh71vFi2Z1f40xZXPIIF5jXJqZt+4=";
+        url = "https://registry.npmjs.org/@github/copilot-linux-arm64/-/copilot-linux-arm64-1.0.50.tgz";
       };
       x86_64-darwin = {
-        hash = "sha256-gVCC0kjHZivQXFWeP1VvraoHMqmgXZtDM77L6cKJKNw=";
-        url = "https://registry.npmjs.org/@github/copilot-darwin-x64/-/copilot-darwin-x64-1.0.47.tgz";
+        hash = "sha256-NjeMgVQYgF89JpiF/AVprNFOCuzKZbObLu9E2LqmLqM=";
+        url = "https://registry.npmjs.org/@github/copilot-darwin-x64/-/copilot-darwin-x64-1.0.50.tgz";
       };
       x86_64-linux = {
-        hash = "sha256-746zeI+Kn6Sbqdd/H/+8ixvlbt1/2IQ4WWSQWFVvbSg=";
-        url = "https://registry.npmjs.org/@github/copilot-linux-x64/-/copilot-linux-x64-1.0.47.tgz";
+        hash = "sha256-BKyfbLqGD9WlGlbe4tgrRtXAJPLAtslsgzb8rb1iZ6o=";
+        url = "https://registry.npmjs.org/@github/copilot-linux-x64/-/copilot-linux-x64-1.0.50.tgz";
       };
     };
     update = {
@@ -123,7 +123,7 @@
         ignore = true;
       };
     };
-    version = "1.0.47";
+    version = "1.0.50";
   };
   jj-diffconflicts = {
     source = {
@@ -169,7 +169,7 @@
     version = "0.1.13";
   };
   repo-conventions = {
-    nugetSha256 = "sha256-99WdVX7zxDCH/0zGJXcIORSepd2anmgOFuIsuibkM0Y=";
+    nugetSha256 = "sha256-W7GWic4PmAJLHgnsz0+jAOzQ8/xH/bY6ZJjhRHP/RhY=";
     update = {
       hashFields = [
         "nugetSha256"
@@ -177,7 +177,7 @@
       packageId = "repo-conventions";
       strategy = "nuget-release";
     };
-    version = "0.1.34";
+    version = "0.1.35";
   };
   screenkey = {
     source = {
