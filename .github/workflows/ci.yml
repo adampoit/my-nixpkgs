@@ -30,7 +30,7 @@ jobs:
           set -euo pipefail
           mapfile -t packages < <(find pkgs -mindepth 2 -maxdepth 2 -name default.nix -exec dirname {} \; | while IFS= read -r dir; do basename "$dir"; done | sort)
           packages_json=$(jq -cn --args '$ARGS.positional' -- "${packages[@]}")
-          release_tags=$(for platform in linux darwin; do printf 'nix-cache-%s-%s\n' "$platform" "${packages[@]}"; done | paste -sd, -)
+          release_tags=$(for platform in linux darwin; do for package in "${packages[@]}"; do printf 'nix-cache-%s-%s\n' "$platform" "$package"; done; done | paste -sd, -)
           printf 'packages=%s\n' "$packages_json" >> "$GITHUB_OUTPUT"
           printf 'release-tags=%s\n' "$release_tags" >> "$GITHUB_OUTPUT"
 
