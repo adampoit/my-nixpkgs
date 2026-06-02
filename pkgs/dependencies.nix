@@ -1,14 +1,14 @@
 {
   apm = {
     source = {
-      hash = "sha256-l3mcWKfJ6ppgbXlZVlCq0RZ1+I+w8pcjbMveNMuIW+k=";
-      url = "https://files.pythonhosted.org/packages/2d/f9/fd556b105b7cb9be4530726d651e000d7f2d2e6c96a463e90b0e6532e103/apm_cli-0.13.0.tar.gz";
+      hash = "sha256-m1qtiH0ok1V4ZNUl9g+AiPrJHb2tZkMlyJ4A7ibC6J0=";
+      url = "https://files.pythonhosted.org/packages/b5/12/991ea43e72fd993e22a483a5399e2a6ffe850849512f83322eadcdb40f8f/apm_cli-0.16.1.tar.gz";
     };
     update = {
       packageId = "apm-cli";
       strategy = "pypi-release";
     };
-    version = "0.13.0";
+    version = "0.16.1";
   };
   azure-ai-inference = {
     source = {
@@ -24,13 +24,13 @@
   };
   cortexapps-cli = {
     source = {
-      hash = "sha256-/FdwUjhJBJrJ3w5d6RB++xbsQ80dXuzVWPyT8ge3z8E=";
-      url = "https://files.pythonhosted.org/packages/f4/d5/69f42fa0232c9885ef6fac2d60e8f6d4d7b257bfef554c9a5c44ef4e6e7c/cortexapps_cli-1.15.0.tar.gz";
+      hash = "sha256-DmsbVFx9s1AGBFDk4pzApesevMuSwbVp9qYReUO9+4o=";
+      url = "https://files.pythonhosted.org/packages/b4/a9/138f146996a2aad811ad67d786edd8d9ffc2f8f6fd70c201f1fd5655ee9e/cortexapps_cli-1.19.0.tar.gz";
     };
     update = {
       strategy = "pypi-release";
     };
-    version = "1.15.0";
+    version = "1.19.0";
   };
   dotnet-counters = {
     nugetSha256 = "sha256-AYT06BqaY1IPA8YTlvLNdQQgmslKmZK6tS7s8Lm8Rss=";
@@ -61,7 +61,7 @@
     version = "8.0.547301";
   };
   findreplacecode = {
-    nugetSha256 = "sha256-uaTsU2ZfUhHwVgPgeLn5DdQte2dqGOLC3SmQaH8B62c=";
+    nugetSha256 = "sha256-+E95J25gIQe4C9091BSu8ShQuHsFU5Qlugm8bM6PHm4=";
     update = {
       hashFields = [
         "nugetSha256"
@@ -69,7 +69,7 @@
       packageId = "Faithlife.FindReplaceCode.Tool";
       strategy = "nuget-release";
     };
-    version = "1.4.0";
+    version = "1.4.1";
   };
   gh-workflow-stats = {
     source = {
@@ -94,20 +94,20 @@
   github-copilot-cli = {
     source = {
       aarch64-darwin = {
-        hash = "sha256-X/owerTpLi3kyTLj9TLXDgOimV2evzD2wU4xcCdVU3Y=";
-        url = "https://registry.npmjs.org/@github/copilot-darwin-arm64/-/copilot-darwin-arm64-1.0.47.tgz";
+        hash = "sha256-h8wcEhsWyRWv1mgBOcEqUIEusgyy/+OAzk3WPh5/fy0=";
+        url = "https://registry.npmjs.org/@github/copilot-darwin-arm64/-/copilot-darwin-arm64-1.0.57.tgz";
       };
       aarch64-linux = {
-        hash = "sha256-NttWpQsStpr8GBaclMUckW0FZYhZv6hN7057yPEG07E=";
-        url = "https://registry.npmjs.org/@github/copilot-linux-arm64/-/copilot-linux-arm64-1.0.47.tgz";
+        hash = "sha256-ibRzz4RIvgGooH/VmRs1TN+5KWY4zCzBGD4HxraWUkE=";
+        url = "https://registry.npmjs.org/@github/copilot-linux-arm64/-/copilot-linux-arm64-1.0.57.tgz";
       };
       x86_64-darwin = {
-        hash = "sha256-gVCC0kjHZivQXFWeP1VvraoHMqmgXZtDM77L6cKJKNw=";
-        url = "https://registry.npmjs.org/@github/copilot-darwin-x64/-/copilot-darwin-x64-1.0.47.tgz";
+        hash = "sha256-KjWZXyiuJ7HX0UMDpaqs/6GZ8o8m7TEChrLIJrbK7vk=";
+        url = "https://registry.npmjs.org/@github/copilot-darwin-x64/-/copilot-darwin-x64-1.0.57.tgz";
       };
       x86_64-linux = {
-        hash = "sha256-746zeI+Kn6Sbqdd/H/+8ixvlbt1/2IQ4WWSQWFVvbSg=";
-        url = "https://registry.npmjs.org/@github/copilot-linux-x64/-/copilot-linux-x64-1.0.47.tgz";
+        hash = "sha256-vBemYfx1/ChwYNRp6A99LR57QI2BLy/msZMyz5Z4y50=";
+        url = "https://registry.npmjs.org/@github/copilot-linux-x64/-/copilot-linux-x64-1.0.57.tgz";
       };
     };
     update = {
@@ -123,14 +123,14 @@
         ignore = true;
       };
     };
-    version = "1.0.47";
+    version = "1.0.57";
   };
   jj-diffconflicts = {
     source = {
-      hash = "sha256-CDLOo07tGOg/7Sowb1d39k9Nq/RW50axGj8L1D3Be70=";
+      hash = "sha256-MjacjGlBRwActBBGeBZDHz8jz5J3Mt6KoDsf8WKgUDA=";
       owner = "rafikdraoui";
       repo = "jj-diffconflicts";
-      rev = "58163ae8fe7646179dfd7741206dd9a2b4cdadc0";
+      rev = "a2aa9a247b56d2c1a6f6be81bcf41c5450cc82ff";
     };
     update = {
       branch = "main";
@@ -169,7 +169,7 @@
     version = "0.1.13";
   };
   repo-conventions = {
-    nugetSha256 = "sha256-99WdVX7zxDCH/0zGJXcIORSepd2anmgOFuIsuibkM0Y=";
+    nugetSha256 = "sha256-BIf6zN+FCtdjt2N7NMeePBahiOT80JB9uFkxIGm++G4=";
     update = {
       hashFields = [
         "nugetSha256"
@@ -177,7 +177,7 @@
       packageId = "repo-conventions";
       strategy = "nuget-release";
     };
-    version = "0.1.34";
+    version = "1.0.0";
   };
   screenkey = {
     source = {
@@ -196,10 +196,10 @@
   };
   skills-ref = {
     source = {
-      hash = "sha256-ulh77OnTtEP2zEIw9wvuajh89Okg8ekI/7OE7ZKQ1Uk=";
+      hash = "sha256-pU5bVarvjeb/s2yJBQz+6UiUpXDQ3Widr7sZ5H2M5MA=";
       owner = "agentskills";
       repo = "agentskills";
-      rev = "2d3e01f590f68bee2cb76a3200823e93b2cc9eaa";
+      rev = "5d4c1fda3f786fff826c7f56b6cb3341e7f3a911";
     };
     sourceSubdir = "skills-ref";
     update = {

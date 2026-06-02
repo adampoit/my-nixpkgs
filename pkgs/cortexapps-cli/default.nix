@@ -22,6 +22,7 @@ in
       "click"
       "requests"
       "typer"
+      "urllib3"
     ];
 
     dependencies = with python3Packages; [
