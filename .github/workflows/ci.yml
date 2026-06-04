@@ -14,28 +14,10 @@ permissions:
   contents: read
 
 jobs:
-  packages:
-    name: compute package list
-    runs-on: ubuntu-latest
-    outputs:
-      packages: ${{ steps.packages.outputs.packages }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Compute packages
-        id: packages
-        run: |
-          set -euo pipefail
-          mapfile -t packages < <(find pkgs -mindepth 2 -maxdepth 2 -name default.nix -exec dirname {} \; | while IFS= read -r dir; do basename "$dir"; done | sort)
-          packages_json=$(jq -cn --args '$ARGS.positional' -- "${packages[@]}")
-          printf 'packages=%s\n' "$packages_json" >> "$GITHUB_OUTPUT"
-
   build:
     name: build (${{ matrix.name }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90
-    needs: packages
     permissions:
       contents: read
     strategy:
@@ -67,24 +49,11 @@ jobs:
             printf '%s\n' "extra-trusted-public-keys = $CACHE_KEY" >> ~/.config/nix/nix.conf
           fi
 
-      - name: Build packages
-        env:
-          PACKAGES: ${{ needs.packages.outputs.packages }}
+      - name: Build default package set
         run: |
           set -euo pipefail
-          paths_dir="$RUNNER_TEMP/nix-cache-paths"
-          mkdir -p "$paths_dir"
-          : > "$paths_dir/all.txt"
-
-          jq -r '.[]' <<< "$PACKAGES" | while IFS= read -r package; do
-            echo "::group::Build $package"
-            nix build ".#$package" --print-build-logs --print-out-paths \
-              | tee "$paths_dir/$package.txt" \
-              >> "$paths_dir/all.txt"
-            echo "::endgroup::"
-          done
-
-          sort -u "$paths_dir/all.txt" > "$paths_dir/upload.txt"
+          nix build .#default --print-build-logs --print-out-paths \
+            | tee "$RUNNER_TEMP/nix-cache-paths.txt"
 
       - name: Upload package cache to DigitalOcean Spaces
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -108,39 +77,4 @@ jobs:
           export AWS_EC2_METADATA_DISABLED=true
 
           upload_store="s3://${DO_SPACES_BUCKET}?region=${DO_SPACES_REGION}&endpoint=${DO_SPACES_ENDPOINT}&secret-key=${key_file}&multipart-upload=true"
-          nix copy --to "$upload_store" --stdin < "$RUNNER_TEMP/nix-cache-paths/upload.txt"
-
-      - name: Make uploaded cache objects publicly readable
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        env:
-          DO_SPACES_ACCESS_KEY_ID: ${{ secrets.DO_SPACES_ACCESS_KEY_ID }}
-          DO_SPACES_SECRET_ACCESS_KEY: ${{ secrets.DO_SPACES_SECRET_ACCESS_KEY }}
-          DO_SPACES_BUCKET: ${{ vars.DO_SPACES_BUCKET }}
-          DO_SPACES_REGION: ${{ vars.DO_SPACES_REGION }}
-          DO_SPACES_ENDPOINT: ${{ vars.DO_SPACES_ENDPOINT }}
-        run: |
-          set -euo pipefail
-          export AWS_ACCESS_KEY_ID="$DO_SPACES_ACCESS_KEY_ID"
-          export AWS_SECRET_ACCESS_KEY="$DO_SPACES_SECRET_ACCESS_KEY"
-          export AWS_EC2_METADATA_DISABLED=true
-
-          export endpoint_url="https://${DO_SPACES_ENDPOINT}"
-          nix shell nixpkgs#awscli2 -c bash -c '
-            set -euo pipefail
-            aws s3api list-objects-v2 \
-              --bucket "$DO_SPACES_BUCKET" \
-              --region "$DO_SPACES_REGION" \
-              --endpoint-url "$endpoint_url" \
-              --query '\''Contents[].Key'\'' \
-              --output text \
-              | tr '\''\t'\'' '\''\n'\'' \
-              | while IFS= read -r key; do
-                  [ -n "$key" ] || continue
-                  aws s3api put-object-acl \
-                    --bucket "$DO_SPACES_BUCKET" \
-                    --key "$key" \
-                    --acl public-read \
-                    --region "$DO_SPACES_REGION" \
-                    --endpoint-url "$endpoint_url"
-                done
-          '
+          nix copy --to "$upload_store" --stdin < "$RUNNER_TEMP/nix-cache-paths.txt"
