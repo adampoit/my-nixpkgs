@@ -1,7 +1,7 @@
-let
+{wezterm-fork}: let
   dependencies = import ./dependencies.nix;
 in
-  final: _prev: {
+  final: prev: {
     apm = final.callPackage ./apm {inherit dependencies;};
     azure-ai-inference = final.callPackage ./azure-ai-inference {inherit dependencies;};
     cortexapps-cli = final.callPackage ./cortexapps-cli {inherit dependencies;};
@@ -15,5 +15,6 @@ in
     repo-conventions = final.callPackage ./repo-conventions {inherit dependencies;};
     skills-ref = final.callPackage ./skills-ref {inherit dependencies;};
     vscode-firefox-debug = final.callPackage ./vscode-firefox-debug {inherit dependencies;};
+    wezterm = wezterm-fork.packages.${prev.stdenv.hostPlatform.system}.default;
     zsh-yarn-autocompletions = final.callPackage ./zsh-yarn-autocompletions {inherit dependencies;};
   }

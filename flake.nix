@@ -3,11 +3,13 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    wezterm-fork.url = "github:adampoit/wezterm?dir=nix";
   };
 
   outputs = {
     self,
     nixpkgs,
+    wezterm-fork,
     ...
   }: let
     lib = nixpkgs.lib;
@@ -33,6 +35,7 @@
       "repo-conventions"
       "skills-ref"
       "vscode-firefox-debug"
+      "wezterm"
       "zsh-yarn-autocompletions"
     ];
     neovimPluginNames = [
@@ -65,7 +68,7 @@
         });
     };
 
-    overlays.default = import ./pkgs/overlay.nix;
+    overlays.default = import ./pkgs/overlay.nix {inherit wezterm-fork;};
 
     formatter = forEachSystem (system: (mkPkgs system).alejandra);
 
