@@ -1,14 +1,14 @@
 {
   apm = {
     source = {
-      hash = "sha256-dUyXFl40uAC1nMAOH5bDQ2hUqVAfL/MygSIpppw5owY=";
-      url = "https://files.pythonhosted.org/packages/eb/7f/0888be2e8823a13d4d5b39748f46f871371b748d3b0580c7e271f788dc57/apm_cli-0.19.0.tar.gz";
+      hash = "sha256-GpTWaG9n9LLtgge3i+ALt1aRnwLv8neMldnfUmjMkYI=";
+      url = "https://files.pythonhosted.org/packages/01/16/6d18d52164ea5d2d296ae64ed489808e4ed4d166eb98b3d2f0ed95551d52/apm_cli-0.20.0.tar.gz";
     };
     update = {
       packageId = "apm-cli";
       strategy = "pypi-release";
     };
-    version = "0.19.0";
+    version = "0.20.0";
   };
   azure-ai-inference = {
     source = {
@@ -24,13 +24,13 @@
   };
   cortexapps-cli = {
     source = {
-      hash = "sha256-1U/oBE05XAG6NaeqQnP4zeII97FMeaRy2OZ/4N97QFs=";
-      url = "https://files.pythonhosted.org/packages/78/41/41bb7410c6c70a2189216a7a368f086e99b5fcb52427c7e0ea5222079eae/cortexapps_cli-1.19.2.tar.gz";
+      hash = "sha256-9pJHszURb1Rt0dk+o0dMQ/e76i0/tg77rC7a/6XgzaU=";
+      url = "https://files.pythonhosted.org/packages/14/51/678a08b9fd0b7b45ea43081d969c4a52ee905f9ea60966af9a719a2a2ddc/cortexapps_cli-1.20.0.tar.gz";
     };
     update = {
       strategy = "pypi-release";
     };
-    version = "1.19.2";
+    version = "1.20.0";
   };
   dotnet-counters = {
     nugetSha256 = "sha256-AYT06BqaY1IPA8YTlvLNdQQgmslKmZK6tS7s8Lm8Rss=";
