@@ -22,15 +22,13 @@
     ];
     forEachSystem = f: lib.genAttrs systems f;
     packageNames = [
-      "apm"
-      "azure-ai-inference"
+      "aspire-cli"
       "cortexapps-cli"
       "dotnet-counters"
       "dotnet-trace"
       "findreplacecode"
       "gh-workflow-stats"
-      "github-copilot-cli"
-      "llm-github-models"
+      "pi-coding-agent"
       "playwright-cli"
       "repo-conventions"
       "skills-ref"
@@ -49,7 +47,6 @@
         overlays = [self.overlays.default];
         config.allowUnfreePredicate = pkg:
           builtins.elem (lib.getName pkg) [
-            "github-copilot-cli"
           ];
       };
   in {

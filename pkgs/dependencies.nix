@@ -1,26 +1,31 @@
 {
-  apm = {
-    source = {
-      hash = "sha256-s//VYdsi3rxcQ/Bad1BIuUGdSUZ7mczxDMRLS5sm14A=";
-      url = "https://files.pythonhosted.org/packages/94/c9/577024b83129768eec233ee862a4a024793ee0ae48d879c19fe098c8ca9a/apm_cli-0.21.0.tar.gz";
+  aspire-cli = {
+    # Unlike most .NET global tools, Aspire.Cli is a dispatcher package that
+    # resolves an installable aspire.cli.<runtime> package at install time. Nix
+    # builds are offline, so we pin the installable package for each platform.
+    platformPackages = {
+      aarch64-darwin = {
+        hash = "sha256-JLF4ZlHOrOfeMUUfKsosBO8pygYUzyNk+x3LbWjUIHQ=";
+        packageId = "aspire.cli.osx-arm64";
+      };
+      aarch64-linux = {
+        hash = "sha256-LQ8w04l1qP1xsDDOY8wgkIoD21xHVGJ5qWHuTI5qQxA=";
+        packageId = "aspire.cli.linux-arm64";
+      };
+      x86_64-darwin = {
+        hash = "sha256-FP64hZel1TnZNQA2CqpwieyfErtNcH6qRS3FMsb//Qw=";
+        packageId = "aspire.cli.osx-x64";
+      };
+      x86_64-linux = {
+        hash = "sha256-H8sU7LKX7yIXLyVzZIeo05UgKEqcIdpaZH8T5ISwVss=";
+        packageId = "aspire.cli.linux-x64";
+      };
     };
     update = {
-      packageId = "apm-cli";
-      strategy = "pypi-release";
+      packageId = "Aspire.Cli";
+      strategy = "nuget-release";
     };
-    version = "0.21.0";
-  };
-  azure-ai-inference = {
-    source = {
-      hash = "sha256-SYI3MuZ0CS2tg7uLDRtlqnMRH6uSTWE0nrKozcBJOZA=";
-      url = "https://files.pythonhosted.org/packages/4f/0f/27520da74769db6e58327d96c98e7b9a07ce686dff582c9a5ec60b03f9dd/azure_ai_inference-1.0.0b9-py3-none-any.whl";
-    };
-    update = {
-      packageId = "azure-ai-inference";
-      packageType = "bdist_wheel";
-      strategy = "pypi-release";
-    };
-    version = "1.0.0b9";
+    version = "13.4.6";
   };
   cortexapps-cli = {
     source = {
@@ -91,40 +96,6 @@
     vendorHash = "sha256-DuuS3VvKJwOJzBQ7cYlcYmqMbmMbiYHd7ZjhylhXnIg=";
     version = "0.4.1";
   };
-  github-copilot-cli = {
-    source = {
-      aarch64-darwin = {
-        hash = "sha256-Rhz9wiKC5i+/ZEXHJ1vMmJqmmBlMLGcCtgMlnKnbOZE=";
-        url = "https://registry.npmjs.org/@github/copilot-darwin-arm64/-/copilot-darwin-arm64-1.0.63.tgz";
-      };
-      aarch64-linux = {
-        hash = "sha256-fSbhiMINupwLnc57BTk9ISLny7il6dut4251hvZHYEk=";
-        url = "https://registry.npmjs.org/@github/copilot-linux-arm64/-/copilot-linux-arm64-1.0.63.tgz";
-      };
-      x86_64-darwin = {
-        hash = "sha256-GBsYPpdC7KKIgBL6wW4nNukXFZxT8d5O36JUjTGDx9s=";
-        url = "https://registry.npmjs.org/@github/copilot-darwin-x64/-/copilot-darwin-x64-1.0.63.tgz";
-      };
-      x86_64-linux = {
-        hash = "sha256-K1vtnD+KBj2qAfx5CtaEXu0maeTs5XXVeYmhizBVN6k=";
-        url = "https://registry.npmjs.org/@github/copilot-linux-x64/-/copilot-linux-x64-1.0.63.tgz";
-      };
-    };
-    update = {
-      packageId = "@github/copilot";
-      sourcePackages = {
-        aarch64-darwin = "@github/copilot-darwin-arm64";
-        aarch64-linux = "@github/copilot-linux-arm64";
-        x86_64-darwin = "@github/copilot-darwin-x64";
-        x86_64-linux = "@github/copilot-linux-x64";
-      };
-      strategy = "npm-registry-release";
-      upstream = {
-        ignore = true;
-      };
-    };
-    version = "1.0.63";
-  };
   jj-diffconflicts = {
     source = {
       hash = "sha256-MjacjGlBRwActBBGeBZDHz8jz5J3Mt6KoDsf8WKgUDA=";
@@ -137,16 +108,19 @@
       strategy = "github-branch";
     };
   };
-  llm-github-models = {
+  pi-coding-agent = {
+    npmDepsHash = "sha256-smbuZcKOX+ZoG4zHtUSLrwwURX69jRfzbq4MsS5+fEw=";
     source = {
-      hash = "sha256-t3iqb6Q+U+yzuGj8+YdbwOdgp3Sh+tduqQeiaVgqIEM=";
-      url = "https://files.pythonhosted.org/packages/2c/b5/714d6c7683cf5ffcf0352951a83ea9d952bd6052900b9e7ccb2a3b09ce0a/llm_github_models-0.18.0.tar.gz";
+      hash = "sha256-eH1+vHrKBu1GcUXnTdvRtNuLuf0EdReAnFit8UqiXB4=";
+      owner = "earendil-works";
+      repo = "pi";
+      rev = "v0.79.8";
     };
     update = {
-      packageId = "llm-github-models";
-      strategy = "pypi-release";
+      packageId = "@earendil-works/pi-coding-agent";
+      strategy = "npm-registry-release";
     };
-    version = "0.18.0";
+    version = "0.79.8";
   };
   playwright-cli = {
     npmDepsHash = "sha256-0bvwryiyPskay+h8+0RiOmnamHkmcRRK00q7ZEPdj1g=";
