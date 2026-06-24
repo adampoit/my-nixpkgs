@@ -537,7 +537,21 @@ static string ResolveNpmDepsHash(DependencyEntry entry, string sourceRoot, strin
 	LogStep("prefetching npm dependencies", entry.Path);
 	var lockfilePath = GetNpmLockfilePath(entry, sourceRoot);
 	var executable = GetPrefetchNpmDepsExecutable(workingDirectory);
-	return RunAndCapture(executable, [lockfilePath], workingDirectory).Trim();
+	var environment = GetNpmDepsPrefetchEnvironment(entry);
+	return RunAndCapture(executable, [lockfilePath], workingDirectory, environment).Trim();
+}
+
+static IReadOnlyDictionary<string, string> GetNpmDepsPrefetchEnvironment(DependencyEntry entry)
+{
+	if (entry.Update["npmDepsFetcherVersion"] is JsonValue version)
+	{
+		return new Dictionary<string, string>
+		{
+			["NPM_FETCHER_VERSION"] = version.GetValue<int>().ToString(System.Globalization.CultureInfo.InvariantCulture),
+		};
+	}
+
+	return new Dictionary<string, string>();
 }
 
 static string GetNpmLockfilePath(DependencyEntry entry, string sourceRoot)
@@ -641,7 +655,11 @@ static void WriteDependencies(string depsFile, JsonObject data)
 	File.WriteAllText(depsFile, Render(data) + Environment.NewLine, new UTF8Encoding(false));
 }
 
-static ProcessResult RunProcess(string fileName, IReadOnlyList<string> arguments, string workingDirectory)
+static ProcessResult RunProcess(
+	string fileName,
+	IReadOnlyList<string> arguments,
+	string workingDirectory,
+	IReadOnlyDictionary<string, string>? environment = null)
 {
 	var psi = new ProcessStartInfo(fileName)
 	{
@@ -656,6 +674,14 @@ static ProcessResult RunProcess(string fileName, IReadOnlyList<string> arguments
 		psi.ArgumentList.Add(argument);
 	}
 
+	if (environment is not null)
+	{
+		foreach (var kvp in environment)
+		{
+			psi.Environment[kvp.Key] = kvp.Value;
+		}
+	}
+
 	using var process = Process.Start(psi) ?? throw new Exception($"Failed to start {fileName}");
 	var stdout = process.StandardOutput.ReadToEnd();
 	var stderr = process.StandardError.ReadToEnd();
@@ -663,9 +689,13 @@ static ProcessResult RunProcess(string fileName, IReadOnlyList<string> arguments
 	return new ProcessResult(process.ExitCode, stdout, stderr);
 }
 
-static string RunAndCapture(string fileName, IReadOnlyList<string> arguments, string workingDirectory)
+static string RunAndCapture(
+	string fileName,
+	IReadOnlyList<string> arguments,
+	string workingDirectory,
+	IReadOnlyDictionary<string, string>? environment = null)
 {
-	var result = RunProcess(fileName, arguments, workingDirectory);
+	var result = RunProcess(fileName, arguments, workingDirectory, environment);
 	if (result.ExitCode != 0)
 	{
 		throw new Exception($"Command failed: {fileName} {string.Join(" ", arguments)}{Environment.NewLine}{result.StdErr}".TrimEnd());
