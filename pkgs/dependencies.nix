@@ -1,8 +1,5 @@
 {
   aspire-cli = {
-    # Unlike most .NET global tools, Aspire.Cli is a dispatcher package that
-    # resolves an installable aspire.cli.<runtime> package at install time. Nix
-    # builds are offline, so we pin the installable package for each platform.
     platformPackages = {
       aarch64-darwin = {
         hash = "sha256-JLF4ZlHOrOfeMUUfKsosBO8pygYUzyNk+x3LbWjUIHQ=";
@@ -109,12 +106,12 @@
     };
   };
   pi-coding-agent = {
-    npmDepsHash = "sha256-oJB85gvo7ihlAbNPRAAv2EIhH2Wa/1PufDSOqoV+rXQ=";
+    npmDepsHash = "sha256-kiH6Gzbx6UM+OcZPfgxPRdOfImJR3OyqUXvmRcpKsxw=";
     source = {
-      hash = "sha256-aKtgPc3rwHEp856jP3N7nImph0CSG+gsWq9OVci3hmE=";
+      hash = "sha256-wQTrWKsb2HCGwzSAFEk8NWSDpqxSY/lv1/R6ghcmbaA=";
       owner = "earendil-works";
       repo = "pi";
-      rev = "v0.80.2";
+      rev = "v0.80.3";
     };
     update = {
       hashFields = [
@@ -126,15 +123,15 @@
         stripPrefix = "v";
       };
     };
-    version = "0.80.2";
+    version = "0.80.3";
   };
   playwright-cli = {
-    npmDepsHash = "sha256-0bvwryiyPskay+h8+0RiOmnamHkmcRRK00q7ZEPdj1g=";
+    npmDepsHash = "sha256-ZrO8yIqMYMQUlsQraejVgKRZ7klC5/8UsV3/H1EqYtA=";
     source = {
-      hash = "sha256-wLE04sfPMh43IzIp6/HKBjloy3iSSanSYdYtklc6lQ4=";
+      hash = "sha256-M0NZ7h1kSIsxktMWe5n75LDc+MHZvSq6b+iRx6opakU=";
       owner = "microsoft";
       repo = "playwright-cli";
-      rev = "v0.1.14";
+      rev = "v0.1.15";
     };
     update = {
       hashFields = [
@@ -146,7 +143,7 @@
         stripPrefix = "v";
       };
     };
-    version = "0.1.14";
+    version = "0.1.15";
   };
   repo-conventions = {
     nugetSha256 = "sha256-QAYM3z3ibiGf1JolX1OvnBcly5aJOnnftDg+XRcsQ+U=";
@@ -176,10 +173,10 @@
   };
   skills-ref = {
     source = {
-      hash = "sha256-pU5bVarvjeb/s2yJBQz+6UiUpXDQ3Widr7sZ5H2M5MA=";
+      hash = "sha256-SzPtMrt6qVmorJXIAkjYpgTdf6bHSMRQ26OTjAsirNo=";
       owner = "agentskills";
       repo = "agentskills";
-      rev = "5d4c1fda3f786fff826c7f56b6cb3341e7f3a911";
+      rev = "6c9ed64a4ba0b46502686c675f32b1c44f0ebc3e";
     };
     sourceSubdir = "skills-ref";
     update = {
