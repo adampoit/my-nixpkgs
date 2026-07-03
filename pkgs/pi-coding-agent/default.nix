@@ -5,12 +5,14 @@
   fetchFromGitHub,
   lib,
   makeBinaryWrapper,
+  nodejs_22,
   ripgrep,
   stdenvNoCC,
 }: let
   dep = dependencies.pi-coding-agent;
+  buildNpmPackageNode22 = buildNpmPackage.override {nodejs = nodejs_22;};
 in
-  buildNpmPackage {
+  buildNpmPackageNode22 {
     pname = "pi-coding-agent";
     inherit (dep) version npmDepsHash;
 
