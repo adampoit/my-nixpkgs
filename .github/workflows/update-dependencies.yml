@@ -78,7 +78,7 @@ jobs:
       - name: Create pull request
         id: create-pull-request
         if: steps.dependency-changes.outputs.changed == 'true'
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.CREATE_PR_TOKEN }}
           add-paths: |
