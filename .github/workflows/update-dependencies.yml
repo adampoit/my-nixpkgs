@@ -19,8 +19,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      - id: not-adam
+        uses: adampoit/not-adam@v1
+        with:
+          app-id: ${{ vars.NOT_ADAM_APP_ID }}
+          private-key: ${{ secrets.NOT_ADAM_APP_PRIVATE_KEY }}
+
       - name: Checkout repository
         uses: actions/checkout@v7
+        with:
+          token: ${{ steps.not-adam.outputs.token }}
 
       - name: Setup Nix
         uses: nixbuild/nix-quick-install-action@v35
@@ -47,7 +55,7 @@ jobs:
 
       - name: Refresh managed dependencies
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ steps.not-adam.outputs.token }}
         run: |
           set -euo pipefail
           chmod +x ./scripts/update-dependencies.cs
@@ -58,7 +66,7 @@ jobs:
 
       - name: Sync upstream package issues
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ steps.not-adam.outputs.token }}
           GITHUB_ASSIGNEE: adampoit
         run: |
           set -euo pipefail
@@ -80,7 +88,7 @@ jobs:
         if: steps.dependency-changes.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v8
         with:
-          token: ${{ secrets.CREATE_PR_TOKEN }}
+          token: ${{ steps.not-adam.outputs.token }}
           add-paths: |
             flake.lock
             pkgs/dependencies.nix
@@ -98,5 +106,5 @@ jobs:
       - name: Enable pull request auto-merge
         if: steps.create-pull-request.outputs.pull-request-number != ''
         env:
-          GH_TOKEN: ${{ secrets.CREATE_PR_TOKEN }}
+          GH_TOKEN: ${{ steps.not-adam.outputs.token }}
         run: gh pr merge --auto --squash "${{ steps.create-pull-request.outputs.pull-request-url }}"
