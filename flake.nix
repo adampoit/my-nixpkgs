@@ -28,6 +28,7 @@
       "dotnet-trace"
       "findreplacecode"
       "gh-workflow-stats"
+      "jj-navi"
       "pi-coding-agent"
       "playwright-cli"
       "repo-conventions"

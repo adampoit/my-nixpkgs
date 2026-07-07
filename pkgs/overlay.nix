@@ -8,6 +8,7 @@ in
     dotnet-trace = final.callPackage ./dotnet-trace {inherit dependencies;};
     findreplacecode = final.callPackage ./findreplacecode {inherit dependencies;};
     gh-workflow-stats = final.callPackage ./gh-workflow-stats {inherit dependencies;};
+    jj-navi = final.callPackage ./jj-navi {inherit dependencies;};
     pi-coding-agent = final.callPackage ./pi-coding-agent {inherit dependencies;};
     playwright-cli = final.callPackage ./playwright-cli {inherit dependencies;};
     repo-conventions = final.callPackage ./repo-conventions {inherit dependencies;};
