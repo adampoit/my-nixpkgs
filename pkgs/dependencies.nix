@@ -26,13 +26,13 @@
   };
   cortexapps-cli = {
     source = {
-      hash = "sha256-z0obDvWgShdbYfQTxvYk0QVSxG9s8jGMOHlwnCgxcsg=";
-      url = "https://files.pythonhosted.org/packages/c6/d7/5313728384b98ef4eacabf7a670e55f4d158062d0094612b3a9a94fa5fe1/cortexapps_cli-1.20.1.tar.gz";
+      hash = "sha256-kwFu8Ts0KgpvYRzkrXFfnqSrxp2SSZ4dmOW1MCa6DRY=";
+      url = "https://files.pythonhosted.org/packages/e6/cb/db02cc352820f6d152006b8f624a90b8409de8aad9886f5a4f70fe331650/cortexapps_cli-1.21.0.tar.gz";
     };
     update = {
       strategy = "pypi-release";
     };
-    version = "1.20.1";
+    version = "1.21.0";
   };
   dotnet-counters = {
     nugetSha256 = "sha256-AYT06BqaY1IPA8YTlvLNdQQgmslKmZK6tS7s8Lm8Rss=";
