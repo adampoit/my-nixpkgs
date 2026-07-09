@@ -121,12 +121,12 @@
     version = "0.2.3";
   };
   pi-coding-agent = {
-    npmDepsHash = "sha256-kiH6Gzbx6UM+OcZPfgxPRdOfImJR3OyqUXvmRcpKsxw=";
+    npmDepsHash = "sha256-UOSV4hQgnk6CDLz1TqXT4bUaGIdIj3He6snjGh+/KN4=";
     source = {
-      hash = "sha256-wQTrWKsb2HCGwzSAFEk8NWSDpqxSY/lv1/R6ghcmbaA=";
+      hash = "sha256-deCpVdoLyhCXUHOJ6srBulrUBT/9tIaEhLVz2bFptXQ=";
       owner = "earendil-works";
       repo = "pi";
-      rev = "v0.80.3";
+      rev = "v0.80.5";
     };
     update = {
       hashFields = [
@@ -138,15 +138,15 @@
         stripPrefix = "v";
       };
     };
-    version = "0.80.3";
+    version = "0.80.5";
   };
   playwright-cli = {
-    npmDepsHash = "sha256-ZrO8yIqMYMQUlsQraejVgKRZ7klC5/8UsV3/H1EqYtA=";
+    npmDepsHash = "sha256-u44jWprmr3RdzB3aDL3K0ShT5lLxr175z3C8pN43YFA=";
     source = {
-      hash = "sha256-M0NZ7h1kSIsxktMWe5n75LDc+MHZvSq6b+iRx6opakU=";
+      hash = "sha256-tc/2Qck3mm6BqWTu2lvvfsM0/BHO/Z0ZvCdFZ7QQqKI=";
       owner = "microsoft";
       repo = "playwright-cli";
-      rev = "v0.1.15";
+      rev = "v0.1.17";
     };
     update = {
       hashFields = [
@@ -158,7 +158,7 @@
         stripPrefix = "v";
       };
     };
-    version = "0.1.15";
+    version = "0.1.17";
   };
   repo-conventions = {
     nugetSha256 = "sha256-QAYM3z3ibiGf1JolX1OvnBcly5aJOnnftDg+XRcsQ+U=";
