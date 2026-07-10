@@ -121,12 +121,12 @@
     version = "0.2.3";
   };
   pi-coding-agent = {
-    npmDepsHash = "sha256-UOSV4hQgnk6CDLz1TqXT4bUaGIdIj3He6snjGh+/KN4=";
+    npmDepsHash = "sha256-Y6dIQbmwdR3YqpdMA5ioNf/qUzAwGXjynXhxRrmCRYE=";
     source = {
-      hash = "sha256-deCpVdoLyhCXUHOJ6srBulrUBT/9tIaEhLVz2bFptXQ=";
+      hash = "sha256-e/wcHruEcBAHDF5tKvwew7LXjVp0eraHh2k+QaL2sCA=";
       owner = "earendil-works";
       repo = "pi";
-      rev = "v0.80.5";
+      rev = "v0.80.6";
     };
     update = {
       hashFields = [
@@ -138,7 +138,7 @@
         stripPrefix = "v";
       };
     };
-    version = "0.80.5";
+    version = "0.80.6";
   };
   playwright-cli = {
     npmDepsHash = "sha256-u44jWprmr3RdzB3aDL3K0ShT5lLxr175z3C8pN43YFA=";
@@ -188,10 +188,10 @@
   };
   skills-ref = {
     source = {
-      hash = "sha256-GkrmXlCR2BkMFH8O6M3bp1jy0dxxDz8bnpEjasxv80A=";
+      hash = "sha256-Wcvw1TLXpj/Wlq/pxK3hKitn6QAVnGLHW6aZUVfABtM=";
       owner = "agentskills";
       repo = "agentskills";
-      rev = "0c0c5673846d0a1c983d910b189e329ef3ab8f2a";
+      rev = "38a2ff82958afee88dadf4831509e6f7e9d8ef4e";
     };
     sourceSubdir = "skills-ref";
     update = {
