@@ -42,6 +42,12 @@
       "screenkey"
       "ts-error-translator"
     ];
+    weztermPluginNames = [
+      "dev-wezterm"
+      "resurrect-wezterm"
+      "smart-workspace-switcher-wezterm"
+      "tabline-wez"
+    ];
     mkPkgs = system:
       import nixpkgs {
         inherit system;
@@ -53,6 +59,7 @@
   in {
     lib = {
       neovimPlugins = lib.genAttrs neovimPluginNames (name: dependencies.${name});
+      weztermPlugins = lib.genAttrs weztermPluginNames (name: dependencies.${name});
       upstreamAvailability = forEachSystem (system:
         import ./pkgs/upstream-availability.nix {
           inherit

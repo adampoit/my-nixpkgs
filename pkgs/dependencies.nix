@@ -231,6 +231,54 @@
     };
     version = "2.15.0";
   };
+  dev-wezterm = {
+    source = {
+      hash = "sha256-/bynntzQHwipNn4D+/GhWwHwLVJf52HpC7ZYUP1K0Gg=";
+      owner = "chrisgve";
+      repo = "dev.wezterm";
+      rev = "40dea555a1112e1d353a61646647c739a3ce112f";
+    };
+    update = {
+      branch = "main";
+      strategy = "github-branch";
+    };
+  };
+  resurrect-wezterm = {
+    source = {
+      hash = "sha256-xjwOSRnwZ69x9NAumc6GovlzJ0iUPI3/t9wXPlD4nEs=";
+      owner = "MLFlexer";
+      repo = "resurrect.wezterm";
+      rev = "65cbbbf6d2c76f3e36af7610a356fc190fcb6147";
+    };
+    update = {
+      branch = "main";
+      strategy = "github-branch";
+    };
+  };
+  smart-workspace-switcher-wezterm = {
+    source = {
+      hash = "sha256-af83PYDg3016uKSLd/IzFi2qV0Ouqjrv79CHZ1k2o+o=";
+      owner = "MLFlexer";
+      repo = "smart_workspace_switcher.wezterm";
+      rev = "d502c8df682af072adc0555e9c41429b00934577";
+    };
+    update = {
+      branch = "main";
+      strategy = "github-branch";
+    };
+  };
+  tabline-wez = {
+    source = {
+      hash = "sha256-NJ0pG+mkAEAtZmfqE/l/c9hnM1QBRHHlByW+tj01Kvk=";
+      owner = "michaelbrusegard";
+      repo = "tabline.wez";
+      rev = "d0749dfae91c51e9dadfc6d58cbc6b39df0fe258";
+    };
+    update = {
+      branch = "main";
+      strategy = "github-branch";
+    };
+  };
   zsh-yarn-autocompletions = {
     source = {
       hash = "sha256-qeILNviMJA/6fDLN7uFzL4nLwDbvLx0EGxaH3yoUU7o=";
