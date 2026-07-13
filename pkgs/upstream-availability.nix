@@ -7,6 +7,11 @@
   system,
 }: let
   pkgs = nixpkgs.legacyPackages.${system};
+  scopedDependencies =
+    lib.filterAttrs (
+      name: _: builtins.elem name neovimPluginNames || builtins.elem name packageNames
+    )
+    dependencies;
 
   normalize = value: let
     chars = lib.stringToCharacters (lib.toLower value);
@@ -57,17 +62,16 @@
     );
 
   getCandidates = name: dependency: let
-    upstream = dependency.update.upstream or {};
     scope = getScope name;
     aliases = getAliases name dependency;
-    normalizedAliases = builtins.map normalizeForMatch aliases;
+    normalizedAliases = map normalizeForMatch aliases;
     matchingAttrs =
       builtins.filter (
         attr: builtins.elem (normalizeForMatch attr) normalizedAliases
       )
       scope.attrs;
   in
-    builtins.map (attr: {attrPath = scope.attrPath ++ [attr];}) matchingAttrs;
+    map (attr: {attrPath = scope.attrPath ++ [attr];}) matchingAttrs;
 
   mkAvailability = name: dependency: let
     upstream = dependency.update.upstream or {};
@@ -82,4 +86,4 @@
       inherit candidates;
     };
 in
-  lib.filterAttrs (_: value: value != null) (lib.mapAttrs mkAvailability dependencies)
+  lib.filterAttrs (_: value: value != null) (lib.mapAttrs mkAvailability scopedDependencies)
