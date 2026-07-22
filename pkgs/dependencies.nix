@@ -132,26 +132,6 @@
     };
     version = "0.2.3";
   };
-  pi-coding-agent = {
-    npmDepsHash = "sha256-Ro2ovgqH6EpFb20M5DvcP6KIxXZPHcjeEdo1Sh4JbDM=";
-    source = {
-      hash = "sha256-Vs/ndHYzFyfN4CjPV2zMYblLXe9IuM13UrPJI1VsZEQ=";
-      owner = "earendil-works";
-      repo = "pi";
-      rev = "v0.80.10";
-    };
-    update = {
-      hashFields = [
-        "npmDepsHash"
-      ];
-      npmDepsFetcherVersion = 2;
-      strategy = "github-release";
-      version = {
-        stripPrefix = "v";
-      };
-    };
-    version = "0.80.10";
-  };
   playwright-cli = {
     npmDepsHash = "sha256-u44jWprmr3RdzB3aDL3K0ShT5lLxr175z3C8pN43YFA=";
     source = {

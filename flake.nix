@@ -28,7 +28,6 @@
       "findreplacecode"
       "gh-workflow-stats"
       "jj-navi"
-      "pi-coding-agent"
       "playwright-cli"
       "repo-conventions"
       "skills-ref"
