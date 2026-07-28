@@ -26,13 +26,13 @@
   };
   cortexapps-cli = {
     source = {
-      hash = "sha256-nXyXmK5cJ+v8MEV/O+rTG4qaEq0NHgq1xoDdZekRAbU=";
-      url = "https://files.pythonhosted.org/packages/35/1f/eaed03f6cf44fb44ba8df2978d14540c1920252fc1d77c1b522b5be1b1ff/cortexapps_cli-1.24.0.tar.gz";
+      hash = "sha256-icTr+/U5nN76SoFA2nJsIVRmzcotLASLG/07GkKrDC4=";
+      url = "https://files.pythonhosted.org/packages/f9/97/265be65c3b1a843e2fe8c1fef1b05449a6f46440047ac0379d6646769f90/cortexapps_cli-1.26.0.tar.gz";
     };
     update = {
       strategy = "pypi-release";
     };
-    version = "1.24.0";
+    version = "1.26.0";
   };
   dev-wezterm = {
     source = {
