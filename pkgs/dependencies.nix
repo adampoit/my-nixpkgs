@@ -192,10 +192,10 @@
   };
   skills-ref = {
     source = {
-      hash = "sha256-Wcvw1TLXpj/Wlq/pxK3hKitn6QAVnGLHW6aZUVfABtM=";
+      hash = "sha256-NNy14DcGzWAQAFCn3wKSSyhEG+UJ/3R28PJBNDPVib8=";
       owner = "agentskills";
       repo = "agentskills";
-      rev = "38a2ff82958afee88dadf4831509e6f7e9d8ef4e";
+      rev = "27a9f0c075e876ad632fc2e88b8866c5dc8ca15c";
     };
     sourceSubdir = "skills-ref";
     update = {
