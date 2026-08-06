@@ -133,12 +133,12 @@
     version = "0.2.3";
   };
   playwright-cli = {
-    npmDepsHash = "sha256-u44jWprmr3RdzB3aDL3K0ShT5lLxr175z3C8pN43YFA=";
+    npmDepsHash = "sha256-3kqiQvGtZfsmLHVWeCSM1yOYb+ws2x1vMPC1OuvrKAI=";
     source = {
-      hash = "sha256-tc/2Qck3mm6BqWTu2lvvfsM0/BHO/Z0ZvCdFZ7QQqKI=";
+      hash = "sha256-E/AzDJhD12PWSaA3iRY+hloPsSWnAw18gTa/ItVhr3E=";
       owner = "microsoft";
       repo = "playwright-cli";
-      rev = "v0.1.17";
+      rev = "v0.1.18";
     };
     update = {
       hashFields = [
@@ -150,7 +150,7 @@
         stripPrefix = "v";
       };
     };
-    version = "0.1.17";
+    version = "0.1.18";
   };
   repo-conventions = {
     nugetSha256 = "sha256-QAYM3z3ibiGf1JolX1OvnBcly5aJOnnftDg+XRcsQ+U=";
