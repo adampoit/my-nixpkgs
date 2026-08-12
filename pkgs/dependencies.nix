@@ -132,6 +132,25 @@
     };
     version = "0.2.3";
   };
+  octoscope = {
+    source = {
+      hash = "sha256-RVJKx+NluFTSdi6MQivGQh/1NFkKfB9KZ6mlFhbDtjw=";
+      owner = "gfazioli";
+      repo = "octoscope";
+      rev = "v0.28.0";
+    };
+    update = {
+      hashFields = [
+        "vendorHash"
+      ];
+      strategy = "github-release";
+      version = {
+        stripPrefix = "v";
+      };
+    };
+    vendorHash = "sha256-DIVqbNjYbrssX22Htk9Mhc8fv8M8lS+LKo070EbcsCE=";
+    version = "0.28.0";
+  };
   playwright-cli = {
     npmDepsHash = "sha256-3kqiQvGtZfsmLHVWeCSM1yOYb+ws2x1vMPC1OuvrKAI=";
     source = {
@@ -227,6 +246,23 @@
       branch = "main";
       strategy = "github-branch";
     };
+  };
+  taskwarrior-tui = {
+    cargoHash = "sha256-IMttQNm/3WzVf5DAaDsXvK+C2JvTeF4VTDtALToHVQo=";
+    source = {
+      hash = "sha256-AaTs+ytDb0qaqXL28eBbd8AezQtB80Lphe0QN3Ua/c0=";
+      owner = "adampoit";
+      repo = "taskwarrior-tui";
+      rev = "eb4b2bddfc94ede7ceafba2cac7b73ca2666bcbd";
+    };
+    update = {
+      hashFields = [
+        "cargoHash"
+      ];
+      strategy = "manual";
+      upstream.ignore = true;
+    };
+    version = "0.27.0-fork";
   };
   ts-error-translator = {
     source = {
