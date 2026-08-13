@@ -3,10 +3,20 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    cielo = {
+      url = "github:adampoit/cielo-cli";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    googleworkspace-cli = {
+      url = "github:googleworkspace/cli";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     wezterm-fork.url = "github:adampoit/wezterm?dir=nix";
   };
 
   outputs = {
+    cielo,
+    googleworkspace-cli,
     self,
     nixpkgs,
     wezterm-fork,
@@ -22,15 +32,19 @@
     forEachSystem = f: lib.genAttrs systems f;
     packageNames = [
       "aspire-cli"
+      "cielo"
       "cortexapps-cli"
       "dotnet-counters"
       "dotnet-trace"
       "findreplacecode"
       "gh-workflow-stats"
+      "googleworkspace-cli"
       "jj-navi"
+      "octoscope"
       "playwright-cli"
       "repo-conventions"
       "skills-ref"
+      "taskwarrior-tui"
       "vscode-firefox-debug"
       "wezterm"
       "zsh-yarn-autocompletions"
@@ -71,7 +85,9 @@
         });
     };
 
-    overlays.default = import ./pkgs/overlay.nix {inherit wezterm-fork;};
+    overlays.default = import ./pkgs/overlay.nix {
+      inherit cielo googleworkspace-cli wezterm-fork;
+    };
 
     formatter = forEachSystem (system: (mkPkgs system).alejandra);
 
