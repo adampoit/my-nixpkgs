@@ -22,17 +22,17 @@
       packageId = "Aspire.Cli";
       strategy = "nuget-release";
     };
-    version = "13.4.6";
+    version = "13.5.3";
   };
   cortexapps-cli = {
     source = {
-      hash = "sha256-r2l7rMDL/rq4opiJCcrYftPEvtmus4xcX6SHAQle82E=";
-      url = "https://files.pythonhosted.org/packages/53/6d/8a8f3ce387b1a8ddf0f749f4541c06b9ab48a6dd84e354f0cebc569f022e/cortexapps_cli-1.30.0.tar.gz";
+      hash = "sha256-GQVoAlbVr9wmqtE6F1O8xazES/jGldxDkraA734MKkc=";
+      url = "https://files.pythonhosted.org/packages/f0/a6/a9abf3761e3da9552a7e8ffc4fceba7707363a0c268781cc422da21ff205/cortexapps_cli-1.38.0.tar.gz";
     };
     update = {
       strategy = "pypi-release";
     };
-    version = "1.30.0";
+    version = "1.38.0";
   };
   dev-wezterm = {
     source = {
@@ -75,7 +75,7 @@
     version = "8.0.547301";
   };
   findreplacecode = {
-    nugetSha256 = "sha256-+E95J25gIQe4C9091BSu8ShQuHsFU5Qlugm8bM6PHm4=";
+    nugetSha256 = "sha256-ns9h+lJzxz1ly+I1aJ0SxKpr46as/so5mGy9m+2WHtw=";
     update = {
       hashFields = [
         "nugetSha256"
@@ -83,7 +83,7 @@
       packageId = "Faithlife.FindReplaceCode.Tool";
       strategy = "nuget-release";
     };
-    version = "1.4.1";
+    version = "1.4.2";
   };
   gh-workflow-stats = {
     source = {
@@ -134,10 +134,10 @@
   };
   octoscope = {
     source = {
-      hash = "sha256-RVJKx+NluFTSdi6MQivGQh/1NFkKfB9KZ6mlFhbDtjw=";
+      hash = "sha256-Voi/ItNT/rxyY0CtocKbeMI6fdvVX4nd8FoLzwsrPg4=";
       owner = "gfazioli";
       repo = "octoscope";
-      rev = "v0.28.0";
+      rev = "v0.31.0";
     };
     update = {
       hashFields = [
@@ -149,15 +149,15 @@
       };
     };
     vendorHash = "sha256-DIVqbNjYbrssX22Htk9Mhc8fv8M8lS+LKo070EbcsCE=";
-    version = "0.28.0";
+    version = "0.31.0";
   };
   playwright-cli = {
-    npmDepsHash = "sha256-3kqiQvGtZfsmLHVWeCSM1yOYb+ws2x1vMPC1OuvrKAI=";
+    npmDepsHash = "sha256-aY3i+sc2p8iQAEpfs+j/ifeBVmMpDDmwctEqOIDmCqI=";
     source = {
-      hash = "sha256-E/AzDJhD12PWSaA3iRY+hloPsSWnAw18gTa/ItVhr3E=";
+      hash = "sha256-pbv51ybubbjoIpKg0k7lfXfZ9Z+qdZI2lRhQeI+/mFA=";
       owner = "microsoft";
       repo = "playwright-cli";
-      rev = "v0.1.18";
+      rev = "v0.1.19";
     };
     update = {
       hashFields = [
@@ -169,7 +169,7 @@
         stripPrefix = "v";
       };
     };
-    version = "0.1.18";
+    version = "0.1.19";
   };
   repo-conventions = {
     nugetSha256 = "sha256-QAYM3z3ibiGf1JolX1OvnBcly5aJOnnftDg+XRcsQ+U=";
@@ -260,7 +260,9 @@
         "cargoHash"
       ];
       strategy = "manual";
-      upstream.ignore = true;
+      upstream = {
+        ignore = true;
+      };
     };
     version = "0.27.0-fork";
   };
