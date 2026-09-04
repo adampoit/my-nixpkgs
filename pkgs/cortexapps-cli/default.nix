@@ -28,6 +28,7 @@ in
     dependencies = with python3Packages; [
       click
       pyyaml
+      pynacl
       requests
       typer
       typing-extensions

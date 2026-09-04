@@ -2,19 +2,19 @@
   aspire-cli = {
     platformPackages = {
       aarch64-darwin = {
-        hash = "sha256-JLF4ZlHOrOfeMUUfKsosBO8pygYUzyNk+x3LbWjUIHQ=";
+        hash = "sha256-JiBnDCCD99E5lhUC7+UCbyGyO/q4NocVlZfm9NOO96w=";
         packageId = "aspire.cli.osx-arm64";
       };
       aarch64-linux = {
-        hash = "sha256-LQ8w04l1qP1xsDDOY8wgkIoD21xHVGJ5qWHuTI5qQxA=";
+        hash = "sha256-fPbnIoS5NrMB89NScr0R9qHIgP9RD4Vpm+CSvLQJJIQ=";
         packageId = "aspire.cli.linux-arm64";
       };
       x86_64-darwin = {
-        hash = "sha256-FP64hZel1TnZNQA2CqpwieyfErtNcH6qRS3FMsb//Qw=";
+        hash = "sha256-ZDuJ9pO7QMWGaLqc7xaN2mh+pH+hUIpNhk5Emh/HW5k=";
         packageId = "aspire.cli.osx-x64";
       };
       x86_64-linux = {
-        hash = "sha256-H8sU7LKX7yIXLyVzZIeo05UgKEqcIdpaZH8T5ISwVss=";
+        hash = "sha256-Nizy0TwMEWUKBHN1PeoVbWGjZi03Vb/Vx0+Bb42vy8k=";
         packageId = "aspire.cli.linux-x64";
       };
     };
