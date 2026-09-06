@@ -134,10 +134,10 @@
   };
   octoscope = {
     source = {
-      hash = "sha256-Voi/ItNT/rxyY0CtocKbeMI6fdvVX4nd8FoLzwsrPg4=";
+      hash = "sha256-OPLNvsWU8Gtbm3gBhZIfBYAivSxkjMuBV+MZNEr3Qt8=";
       owner = "gfazioli";
       repo = "octoscope";
-      rev = "v0.31.0";
+      rev = "v0.31.1";
     };
     update = {
       hashFields = [
@@ -149,7 +149,7 @@
       };
     };
     vendorHash = "sha256-DIVqbNjYbrssX22Htk9Mhc8fv8M8lS+LKo070EbcsCE=";
-    version = "0.31.0";
+    version = "0.31.1";
   };
   playwright-cli = {
     npmDepsHash = "sha256-aY3i+sc2p8iQAEpfs+j/ifeBVmMpDDmwctEqOIDmCqI=";
