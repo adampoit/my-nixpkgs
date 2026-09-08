@@ -26,13 +26,13 @@
   };
   cortexapps-cli = {
     source = {
-      hash = "sha256-p5Z5F7Bg3IPikwQigs9LVhF3er58SXk1arj1D1SDbO8=";
-      url = "https://files.pythonhosted.org/packages/a3/3a/8d607d73f16c5a1e3b323ce6e0298962a9df71fae28e4232e694893dc23a/cortexapps_cli-1.39.0.tar.gz";
+      hash = "sha256-cvVuJ9ZSRDHQH2h4pg1djaufWvWyTPajcbSFS57VHpI=";
+      url = "https://files.pythonhosted.org/packages/63/4f/c9407cfc1b1f2961b4a3579a5a963e84b667711a360c82789d1db75742c2/cortexapps_cli-1.41.0.tar.gz";
     };
     update = {
       strategy = "pypi-release";
     };
-    version = "1.39.0";
+    version = "1.41.0";
   };
   dev-wezterm = {
     source = {
@@ -134,10 +134,10 @@
   };
   octoscope = {
     source = {
-      hash = "sha256-aDBSyqK7E13Tumyp7Lf9KGHhdiU5E2p9X/0PLZ59M68=";
+      hash = "sha256-2AQ0/60dx84/oaxYvb827k9OQv8VEoQm2E+3CmMXN2I=";
       owner = "gfazioli";
       repo = "octoscope";
-      rev = "v0.32.0";
+      rev = "v0.33.0";
     };
     update = {
       hashFields = [
@@ -149,7 +149,7 @@
       };
     };
     vendorHash = "sha256-DIVqbNjYbrssX22Htk9Mhc8fv8M8lS+LKo070EbcsCE=";
-    version = "0.32.0";
+    version = "0.33.0";
   };
   playwright-cli = {
     npmDepsHash = "sha256-aY3i+sc2p8iQAEpfs+j/ifeBVmMpDDmwctEqOIDmCqI=";
