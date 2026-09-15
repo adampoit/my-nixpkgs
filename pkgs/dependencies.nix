@@ -26,13 +26,13 @@
   };
   cortexapps-cli = {
     source = {
-      hash = "sha256-cvVuJ9ZSRDHQH2h4pg1djaufWvWyTPajcbSFS57VHpI=";
-      url = "https://files.pythonhosted.org/packages/63/4f/c9407cfc1b1f2961b4a3579a5a963e84b667711a360c82789d1db75742c2/cortexapps_cli-1.41.0.tar.gz";
+      hash = "sha256-Qrg/h/1HtE8x9GWq5bGzuW2l8CjQaxY1Rzf9k7jBcsA=";
+      url = "https://files.pythonhosted.org/packages/23/08/2f5950c578bc5cc1e044922513c53e6f878dce772ce6aa7755f260006f3d/cortexapps_cli-1.42.0.tar.gz";
     };
     update = {
       strategy = "pypi-release";
     };
-    version = "1.41.0";
+    version = "1.42.0";
   };
   dev-wezterm = {
     source = {
@@ -152,12 +152,12 @@
     version = "0.34.3";
   };
   playwright-cli = {
-    npmDepsHash = "sha256-aY3i+sc2p8iQAEpfs+j/ifeBVmMpDDmwctEqOIDmCqI=";
+    npmDepsHash = "sha256-PZrjfveGYvPapua4eRV6FJRc9txh8OXSsbsxQmkiZPw=";
     source = {
-      hash = "sha256-pbv51ybubbjoIpKg0k7lfXfZ9Z+qdZI2lRhQeI+/mFA=";
+      hash = "sha256-MSBXygESmOlZi8qryAsUN6jb30RbysdEZRBXocrXZ14=";
       owner = "microsoft";
       repo = "playwright-cli";
-      rev = "v0.1.19";
+      rev = "v0.1.20";
     };
     update = {
       hashFields = [
@@ -169,7 +169,7 @@
         stripPrefix = "v";
       };
     };
-    version = "0.1.19";
+    version = "0.1.20";
   };
   repo-conventions = {
     nugetSha256 = "sha256-QAYM3z3ibiGf1JolX1OvnBcly5aJOnnftDg+XRcsQ+U=";
