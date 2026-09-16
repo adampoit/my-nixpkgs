@@ -22,7 +22,7 @@
       packageId = "Aspire.Cli";
       strategy = "nuget-release";
     };
-    version = "13.5.3";
+    version = "13.5.4";
   };
   cortexapps-cli = {
     source = {
@@ -134,10 +134,10 @@
   };
   octoscope = {
     source = {
-      hash = "sha256-L7dvRCQ8He/JVitttMJOk4p3dMjaZyIAQWtvTz1eKyQ=";
+      hash = "sha256-Hkt24GNK1GB9mGPd1jYc2t+R6bGhAlTTuqvwbgRfpIE=";
       owner = "gfazioli";
       repo = "octoscope";
-      rev = "v0.34.3";
+      rev = "v0.35.0";
     };
     update = {
       hashFields = [
@@ -149,7 +149,7 @@
       };
     };
     vendorHash = "sha256-DIVqbNjYbrssX22Htk9Mhc8fv8M8lS+LKo070EbcsCE=";
-    version = "0.34.3";
+    version = "0.35.0";
   };
   playwright-cli = {
     npmDepsHash = "sha256-PZrjfveGYvPapua4eRV6FJRc9txh8OXSsbsxQmkiZPw=";
