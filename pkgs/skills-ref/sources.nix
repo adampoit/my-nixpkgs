@@ -10,5 +10,5 @@
     branch = "main";
     strategy = "github-branch";
   };
-  version = "0.1.0";
+  version = "0-unstable-2026-08-09";
 }
