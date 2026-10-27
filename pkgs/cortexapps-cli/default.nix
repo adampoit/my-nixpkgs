@@ -21,6 +21,8 @@ in
 
     nativeBuildInputs = with python3Packages; [pythonRelaxDepsHook];
     pythonRelaxDeps = [
+      # nixpkgs replaces certifi's bundled roots with its separately maintained cacert bundle.
+      "certifi"
       "click"
       "requests"
       "typer"
@@ -28,6 +30,7 @@ in
     ];
 
     dependencies = with python3Packages; [
+      certifi
       click
       pyyaml
       pynacl
