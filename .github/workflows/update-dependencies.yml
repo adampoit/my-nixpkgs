@@ -2,7 +2,7 @@ name: update-dependencies
 
 on:
   schedule:
-    - cron: "0 10 * * *"
+    - cron: '0 10 * * *'
   workflow_dispatch:
 
 concurrency:
@@ -17,7 +17,7 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - id: not-adam
         uses: adampoit/not-adam@v1
@@ -54,14 +54,11 @@ jobs:
 
       - name: Refresh managed dependencies
         env:
-          GH_TOKEN: ${{ steps.not-adam.outputs.token }}
-        run: |
-          set -euo pipefail
-          chmod +x ./scripts/update-dependencies.cs
-          ./scripts/update-dependencies.cs
+          GITHUB_TOKEN: ${{ steps.not-adam.outputs.token }}
+        run: nix develop --command dotnet run --file scripts/update-dependencies.cs --
 
-      - name: Format dependency file
-        run: nix run nixpkgs#alejandra -- pkgs/dependencies.nix
+      - name: Format package expressions
+        run: nix develop --command alejandra pkgs
 
       - name: Sync upstream package issues
         env:
@@ -76,7 +73,7 @@ jobs:
         id: dependency-changes
         run: |
           set -euo pipefail
-          if git diff --quiet --exit-code -- pkgs/dependencies.nix; then
+          if git diff --quiet --exit-code -- flake.lock pkgs; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -90,7 +87,7 @@ jobs:
           token: ${{ steps.not-adam.outputs.token }}
           add-paths: |
             flake.lock
-            pkgs/dependencies.nix
+            pkgs
           branch: automation/update-dependencies
           delete-branch: true
           commit-message: Update managed dependencies
@@ -98,8 +95,8 @@ jobs:
           body: |
             ## Summary
             - refresh all flake inputs
-            - run `./scripts/update-dependencies.cs`
-            - refresh pinned package metadata in `pkgs/dependencies.nix` and `flake.lock`
+            - run `nix-update` through `scripts/update-dependencies.cs`
+            - refresh package-local pins in `pkgs/*/sources.nix` and `flake.lock`
           labels: dependencies
 
       - name: Enable pull request auto-merge

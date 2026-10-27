@@ -1,835 +1,181 @@
-#!/usr/bin/env dotnet
-
 using System.Diagnostics;
-using System.Net.Http;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.Json;
 using System.Text.Json.Nodes;
-using System.Text.RegularExpressions;
 
-const string FakeHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
-const string NuGetServiceIndexUrl = "https://api.nuget.org/v3/index.json";
-const string NpmRegistryUrl = "https://registry.npmjs.org";
-const string PyPiRegistryUrl = "https://pypi.org/pypi";
-
-var currentDirectory = Directory.GetCurrentDirectory();
-var repoRoot = File.Exists(Path.Combine(currentDirectory, "pkgs", "dependencies.nix"))
-	? currentDirectory
-	: Path.GetFullPath(Path.Combine(currentDirectory, ".."));
-var depsFile = Path.Combine(repoRoot, "pkgs", "dependencies.nix");
-var packageRoot = GetPackageRoot();
-var filters = args.ToHashSet(StringComparer.Ordinal);
-
-var data = LoadDependencies(depsFile, repoRoot);
-var entries = GetPackageEntries(data).ToList();
-var entryPaths = entries.Select(x => x.Path).ToHashSet(StringComparer.Ordinal);
-var missing = filters.Where(x => !entryPaths.Contains(x)).OrderBy(x => x).ToList();
-
-if (missing.Count > 0)
+internal sealed class DependencyUpdater(
+	Func<string, IReadOnlyList<string>, bool, Task<string>> runCommand,
+	Func<string, string, Task<string>> latestNuGetVersion,
+	TextWriter output,
+	TextWriter error)
 {
-	throw new Exception($"Unknown dependency path(s): {string.Join(", ", missing)}");
-}
+	private const string Usage = "Usage: dotnet run --file scripts/update-dependencies.cs -- [--system <system>] [dependency...]";
 
-var modified = false;
-var selectedEntries = entries
-	.Where(entry => filters.Count == 0 || filters.Contains(entry.Path))
-	.ToList();
-
-LogUpstreamMatches(selectedEntries, repoRoot);
-
-foreach (var entry in selectedEntries)
-{
-	LogStep("checking", entry.Path);
-	var entryChanged = ApplyUpdateStrategy(entry, repoRoot);
-	string? prefetchedSourcePath = null;
-	if (HasGitHubSource(entry.Source))
+	private static async Task<int> Main(string[] args)
 	{
-		LogStep("prefetching source hash", entry.Path);
-		var source = entry.Source!;
-		var prefetchedSource = PrefetchSource(source, repoRoot);
-		prefetchedSourcePath = prefetchedSource.StorePath;
-		var newSourceHash = prefetchedSource.Hash;
-		var currentSourceHash = source["hash"]?.GetValue<string>() ?? throw new Exception($"Missing source.hash for {entry.Path}");
-		if (!StringComparer.Ordinal.Equals(newSourceHash, currentSourceHash))
+		try
 		{
-			source["hash"] = newSourceHash;
-			entryChanged = true;
+			var directory = new DirectoryInfo(Directory.GetCurrentDirectory());
+			while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "pkgs", "dependencies.nix")))
+			{
+				directory = directory.Parent;
+			}
+			var root = directory?.FullName ?? throw new Exception("Run from within the my-nixpkgs repository");
+			using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+			var updater = new DependencyUpdater(
+				(file, arguments, capture) => RunProcess(root, file, arguments, capture),
+				(packageId, prefix) => GetLatestNuGetVersion(client, packageId, prefix),
+				Console.Out,
+				Console.Error);
+			return await updater.Run(args);
+		}
+		catch (Exception exception)
+		{
+			Console.Error.WriteLine(exception.Message);
+			return 1;
 		}
 	}
 
-	if (entryChanged && entry.HashFields.Count > 0)
+	internal async Task<int> Run(string[] args)
 	{
-		WriteDependencies(depsFile, data);
-		foreach (var field in entry.HashFields)
+		string? system = null;
+		var filters = new List<string>();
+		for (var i = 0; i < args.Length; i++)
 		{
-			LogStep($"resolving {field}", entry.Path);
-			var resolvedHash = ResolveHashField(repoRoot, packageRoot, entry, field, depsFile, data, prefetchedSourcePath);
-			var currentHash = entry.Node[field]?.GetValue<string>();
-			if (!StringComparer.Ordinal.Equals(resolvedHash, currentHash))
+			var argument = args[i];
+			if (argument is "--help" or "-h")
 			{
-				entry.Node[field] = resolvedHash;
-				entryChanged = true;
+				output.WriteLine(Usage);
+				return 0;
+			}
+			if (argument == "--system" && i + 1 < args.Length && !args[i + 1].StartsWith('-'))
+			{
+				system = args[++i];
+			}
+			else if (argument.StartsWith("--system=", StringComparison.Ordinal) && argument.Length > "--system=".Length)
+			{
+				system = argument["--system=".Length..];
+			}
+			else if (argument.StartsWith('-'))
+			{
+				error.WriteLine($"Invalid option: {argument}{Environment.NewLine}{Usage}");
+				return 2;
+			}
+			else
+			{
+				filters.Add(argument);
 			}
 		}
-	}
 
-	if (entryChanged)
-	{
-		modified = true;
-	}
-
-	Console.WriteLine($"{(entryChanged ? "updated" : "ok")}: {entry.Path}");
-}
-
-if (modified)
-{
-	WriteDependencies(depsFile, data);
-}
-
-static JsonObject LoadDependencies(string depsFile, string workingDirectory)
-{
-	var output = RunAndCapture("nix", ["eval", "--json", "--file", depsFile], workingDirectory);
-	return JsonNode.Parse(output) as JsonObject ?? throw new Exception("Expected dependencies.nix to evaluate to a JSON object");
-}
-
-static IEnumerable<DependencyEntry> GetPackageEntries(JsonObject data)
-{
-	foreach (var kvp in data)
-	{
-		if (kvp.Value is not JsonObject node)
+		var json = await runCommand("nix", ["eval", "--json", "--file", "pkgs/dependencies.nix"], true);
+		var dependencies = JsonNode.Parse(json) as JsonObject ?? throw new Exception("Expected a dependency metadata object");
+		var selected = filters.Count == 0
+			? dependencies.Select(entry => entry.Key).Order(StringComparer.Ordinal).ToArray()
+			: filters.Distinct(StringComparer.Ordinal).ToArray();
+		var unknown = selected.Where(name => !dependencies.ContainsKey(name)).ToArray();
+		if (unknown.Length > 0)
 		{
-			throw new Exception($"Expected dependency '{kvp.Key}' to be a JSON object");
+			error.WriteLine($"Unknown dependencies: {string.Join(", ", unknown)}");
+			return 2;
 		}
-
-		if (node["update"] is not JsonObject update || update["strategy"] is not JsonValue)
+		system ??= (await runCommand("nix", ["eval", "--impure", "--raw", "--expr", "builtins.currentSystem"], true)).Trim();
+		var failed = new List<string>();
+		foreach (var name in selected)
 		{
-			throw new Exception($"Dependency '{kvp.Key}' is missing required update.strategy metadata");
+			try
+			{
+				await UpdateEntry(name, dependencies[name]!.AsObject(), system);
+			}
+			catch (Exception exception)
+			{
+				error.WriteLine($"failed: {name}: {exception.Message}");
+				failed.Add(name);
+			}
 		}
-
-		yield return new DependencyEntry(kvp.Key, node, node["source"] as JsonObject, update);
-	}
-}
-
-static void LogUpstreamMatches(IReadOnlyList<DependencyEntry> entries, string repoRoot)
-{
-	var selectedPaths = entries
-		.Select(entry => entry.Path)
-		.ToHashSet(StringComparer.Ordinal);
-
-	if (selectedPaths.Count == 0)
-	{
-		return;
-	}
-
-	Console.WriteLine($"checking upstream nixpkgs availability for {selectedPaths.Count} entr{(selectedPaths.Count == 1 ? "y" : "ies")}");
-	var availability = GetUpstreamAvailability(repoRoot);
-	var matches = selectedPaths
-		.Where(path => availability.TryGetValue(path, out var check) && check.Available)
-		.Select(path => new
+		if (failed.Count == 0)
 		{
-			Path = path,
-			Candidates = availability[path].Candidates,
-		})
-		.ToList();
-
-	if (matches.Count == 0)
-	{
-		return;
+			return 0;
+		}
+		error.WriteLine($"Failed updates: {string.Join(", ", failed)}");
+		return 1;
 	}
 
-	Console.WriteLine($"warning: upstream nixpkgs candidates exist for {matches.Count} selected entr{(matches.Count == 1 ? "y" : "ies")}");
-	foreach (var match in matches)
+	private async Task UpdateEntry(string name, JsonObject entry, string system)
 	{
-		Console.WriteLine($"warning: {match.Path} -> {string.Join(", ", match.Candidates.Select(FormatAttrPath))}");
-	}
-}
-
-static Dictionary<string, UpstreamAvailability> GetUpstreamAvailability(string repoRoot)
-{
-	var output = RunAndCapture(
-		"nix",
-		[
-			"eval",
-			"--json",
-			$".#lib.upstreamAvailability.{GetNixSystem()}",
-		],
-		repoRoot);
-	var json = JsonNode.Parse(output) as JsonObject
-		?? throw new Exception("Expected upstream nixpkgs availability check to evaluate to a JSON object");
-	return json.ToDictionary(
-		kvp => kvp.Key,
-		kvp => ParseUpstreamAvailability(kvp.Key, kvp.Value),
-		StringComparer.Ordinal);
-}
-
-static UpstreamAvailability ParseUpstreamAvailability(string path, JsonNode? node)
-{
-	var check = node as JsonObject ?? throw new Exception($"Expected upstream availability object for {path}");
-	var available = check["available"]?.GetValue<bool>() ?? throw new Exception($"Missing upstream availability flag for {path}");
-	var candidates = check["candidates"] as JsonArray ?? throw new Exception($"Missing upstream candidates for {path}");
-
-	return new UpstreamAvailability(
-		available,
-		candidates
-			.Select(candidate => ParseUpstreamCandidate(path, candidate))
-			.ToList());
-}
-
-static IReadOnlyList<string> ParseUpstreamCandidate(string path, JsonNode? node)
-{
-	var candidate = node as JsonObject ?? throw new Exception($"Expected upstream candidate object for {path}");
-	var attrPath = candidate["attrPath"] as JsonArray ?? throw new Exception($"Missing upstream attrPath for {path}");
-	return attrPath
-		.Select(x => x?.GetValue<string>() ?? throw new Exception($"Invalid upstream attrPath component for {path}"))
-		.ToList();
-}
-
-static string FormatAttrPath(IReadOnlyList<string> attrPath)
-{
-	return string.Join(".", attrPath);
-}
-
-static bool HasGitHubSource(JsonObject? source) =>
-	source is not null &&
-	source["owner"] is JsonValue &&
-	source["repo"] is JsonValue &&
-	source["rev"] is JsonValue &&
-	source["hash"] is JsonValue;
-
-static bool ApplyUpdateStrategy(DependencyEntry entry, string workingDirectory)
-{
-	var strategy = entry.Update["strategy"]?.GetValue<string>() ?? throw new Exception($"Missing update.strategy for {entry.Path}");
-	LogStep($"strategy {strategy}", entry.Path);
-	return strategy switch
-	{
-		"manual" => false,
-		"github-branch" => ApplyGitHubBranchUpdate(entry, workingDirectory),
-		"github-release" => ApplyGitHubReleaseUpdate(entry, workingDirectory),
-		"nuget-release" => ApplyNuGetReleaseUpdate(entry),
-		"npm-registry-release" => ApplyNpmRegistryReleaseUpdate(entry, workingDirectory),
-		"pypi-release" => ApplyPyPiReleaseUpdate(entry, workingDirectory),
-		_ => throw new Exception($"Unsupported update strategy '{strategy}' for {entry.Path}"),
-	};
-}
-
-static bool ApplyGitHubBranchUpdate(DependencyEntry entry, string workingDirectory)
-{
-	if (!HasGitHubSource(entry.Source))
-	{
-		throw new Exception($"github-branch requires source.owner, source.repo, source.rev, and source.hash for {entry.Path}");
-	}
-
-	LogStep("checking GitHub branch", entry.Path);
-	var source = entry.Source!;
-	var owner = source["owner"]?.GetValue<string>() ?? throw new Exception($"Missing source.owner for {entry.Path}");
-	var repo = source["repo"]?.GetValue<string>() ?? throw new Exception($"Missing source.repo for {entry.Path}");
-	var branch = entry.Update["branch"]?.GetValue<string>() ?? "main";
-	var commit = GetGitHubBranchHead(owner, repo, branch, workingDirectory);
-	var currentRev = source["rev"]?.GetValue<string>() ?? throw new Exception($"Missing source.rev for {entry.Path}");
-	if (StringComparer.Ordinal.Equals(currentRev, commit))
-	{
-		return false;
-	}
-
-	source["rev"] = commit;
-	return true;
-}
-
-static bool ApplyNuGetReleaseUpdate(DependencyEntry entry)
-{
-	LogStep("checking NuGet release", entry.Path);
-	var currentVersion = entry.Node["version"]?.GetValue<string>() ?? throw new Exception($"Missing version for {entry.Path}");
-	var nextVersion = GetLatestNuGetPackageVersion(entry);
-	if (StringComparer.Ordinal.Equals(currentVersion, nextVersion))
-	{
-		return false;
-	}
-
-	entry.Node["version"] = nextVersion;
-	return true;
-}
-
-static bool ApplyGitHubReleaseUpdate(DependencyEntry entry, string workingDirectory)
-{
-	if (!HasGitHubSource(entry.Source))
-	{
-		throw new Exception($"github-release requires source.owner, source.repo, source.rev, and source.hash for {entry.Path}");
-	}
-
-	LogStep("checking GitHub release", entry.Path);
-	var source = entry.Source!;
-
-	var owner = source["owner"]?.GetValue<string>() ?? throw new Exception($"Missing source.owner for {entry.Path}");
-	var repo = source["repo"]?.GetValue<string>() ?? throw new Exception($"Missing source.repo for {entry.Path}");
-	var release = GetLatestGitHubRelease(owner, repo, workingDirectory);
-	var tag = release["tag_name"]?.GetValue<string>() ?? throw new Exception($"Latest GitHub release for {entry.Path} did not include tag_name");
-	var changed = false;
-
-	if (entry.Node["version"] is JsonNode versionNode)
-	{
-		var currentVersion = versionNode.GetValue<string>();
-		var nextVersion = GetVersionFromTag(tag, entry.Update);
-		if (!StringComparer.Ordinal.Equals(currentVersion, nextVersion))
+		var policy = entry["update"]?.AsObject() ?? throw new Exception($"Missing update policy for {name}");
+		var strategy = policy["strategy"]?.GetValue<string>();
+		if (strategy == "manual")
 		{
-			entry.Node["version"] = nextVersion;
-			changed = true;
+			output.WriteLine($"skipped (manual): {name}");
+			return;
+		}
+		output.WriteLine($"updating: {name}");
+		switch (strategy)
+		{
+			case "nuget-release":
+				var version = await latestNuGetVersion(
+					policy["packageId"]?.GetValue<string>() ?? name,
+					policy["version"]?["prefix"]?.GetValue<string>() ?? "");
+				var platforms = entry["platformPackages"] is JsonObject packages && packages.Count > 0
+					? packages.Select(package => (string?)package.Key).ToArray()
+					: [null];
+				// Set the shared version once, then refresh every hash even when the version is current.
+				await NixUpdate(name, system, platforms[0], $"--version={version}", "--no-src", "--src-only");
+				foreach (var platform in platforms)
+				{
+					await NixUpdate(name, system, platform, "--version=skip", "--src-only");
+				}
+				break;
+			case "github-branch":
+				await NixUpdate(name, system, null, $"--version=branch={policy["branch"]?.GetValue<string>() ?? "main"}");
+				break;
+			case "github-release":
+			case "pypi-release":
+				await NixUpdate(name, system, null);
+				break;
+			default:
+				throw new Exception($"Unsupported update strategy '{strategy}' for {name}");
 		}
 	}
 
-	var currentRev = source["rev"]?.GetValue<string>() ?? throw new Exception($"Missing source.rev for {entry.Path}");
-	if (!StringComparer.Ordinal.Equals(currentRev, tag))
+	private async Task NixUpdate(string name, string system, string? platform, params string[] options)
 	{
-		source["rev"] = tag;
-		changed = true;
-	}
-
-	return changed;
-}
-
-static JsonObject GetLatestGitHubRelease(string owner, string repo, string workingDirectory)
-{
-	var result = RunProcess("gh", ["api", $"repos/{owner}/{repo}/releases/latest"], workingDirectory);
-	if (result.ExitCode == 0)
-	{
-		return JsonNode.Parse(result.StdOut) as JsonObject ?? throw new Exception($"Expected GitHub release payload for {owner}/{repo}");
-	}
-
-	if (result.StdErr.Contains("HTTP 404", StringComparison.Ordinal))
-	{
-		return new JsonObject
+		var target = $"legacyPackages.{system}.updateTargets.{name}";
+		if (platform is not null)
 		{
-			["tag_name"] = GetLatestGitHubTag(owner, repo, workingDirectory),
+			target += $".{platform}";
+		}
+		await runCommand("nix-update", [target, "--flake", "--system", system, "--override-filename", $"pkgs/{name}/sources.nix", .. options], false);
+	}
+
+	internal static async Task<string> GetLatestNuGetVersion(HttpClient client, string packageId, string prefix)
+	{
+		var url = $"https://api.nuget.org/v3-flatcontainer/{Uri.EscapeDataString(packageId.ToLowerInvariant())}/index.json";
+		var metadata = JsonNode.Parse(await client.GetStringAsync(url));
+		var versions = metadata?["versions"]?.AsArray() ?? throw new Exception($"Missing NuGet versions for {packageId}");
+		return versions.Select(version => version!.GetValue<string>())
+			.LastOrDefault(version => !version.Contains('-') && version.StartsWith(prefix, StringComparison.Ordinal))
+			?? throw new Exception($"No stable NuGet version for {packageId} with prefix '{prefix}'");
+	}
+
+	private static async Task<string> RunProcess(string root, string file, IReadOnlyList<string> arguments, bool capture)
+	{
+		var startInfo = new ProcessStartInfo(file)
+		{
+			WorkingDirectory = root,
+			UseShellExecute = false,
+			RedirectStandardOutput = capture,
 		};
-	}
-
-	throw new Exception($"Command failed: gh api repos/{owner}/{repo}/releases/latest{Environment.NewLine}{result.StdErr}".TrimEnd());
-}
-
-static string GetLatestGitHubTag(string owner, string repo, string workingDirectory)
-{
-	var output = RunAndCapture("gh", ["api", $"repos/{owner}/{repo}/tags?per_page=1"], workingDirectory);
-	var tags = JsonNode.Parse(output) as JsonArray ?? throw new Exception($"Expected GitHub tags payload for {owner}/{repo}");
-	var tag = tags[0] as JsonObject ?? throw new Exception($"Expected at least one GitHub tag for {owner}/{repo}");
-	return tag["name"]?.GetValue<string>() ?? throw new Exception($"Missing tag name for {owner}/{repo}");
-}
-
-static string GetGitHubBranchHead(string owner, string repo, string branch, string workingDirectory)
-{
-	var output = RunAndCapture("gh", [$"api", $"repos/{owner}/{repo}/commits/{branch}"], workingDirectory);
-	var json = JsonNode.Parse(output) as JsonObject ?? throw new Exception($"Expected GitHub commit payload for {owner}/{repo}@{branch}");
-	return json["sha"]?.GetValue<string>() ?? throw new Exception($"Missing sha for {owner}/{repo}@{branch}");
-}
-
-static string GetLatestNuGetPackageVersion(DependencyEntry entry)
-{
-	var packageId = entry.Update["packageId"]?.GetValue<string>() ?? entry.Path;
-	var versionPrefix = entry.Update["version"]?["prefix"]?.GetValue<string>();
-	var packageBaseAddress = GetNuGetPackageBaseAddress();
-	var lowerPackageId = packageId.ToLowerInvariant();
-	var url = $"{packageBaseAddress.TrimEnd('/')}/{Uri.EscapeDataString(lowerPackageId)}/index.json";
-	var json = GetJsonObject(url);
-	var versions = json["versions"] as JsonArray ?? throw new Exception($"Expected NuGet versions array for {packageId}");
-
-	var latestVersion = versions
-		.Select(x => x?.GetValue<string>() ?? throw new Exception($"Invalid NuGet version entry for {packageId}"))
-		.Where(x => !x.Contains('-', StringComparison.Ordinal))
-		.Where(x => string.IsNullOrEmpty(versionPrefix) || x.StartsWith(versionPrefix, StringComparison.Ordinal))
-		.LastOrDefault();
-
-	return latestVersion ?? throw new Exception($"Could not find a stable NuGet version for {packageId}");
-}
-
-static bool ApplyNpmRegistryReleaseUpdate(DependencyEntry entry, string workingDirectory)
-{
-	LogStep("checking npm release", entry.Path);
-	var packageId = entry.Update["packageId"]?.GetValue<string>() ?? throw new Exception($"Missing update.packageId for {entry.Path}");
-	var version = GetLatestNpmPackageVersion(entry.Update, packageId);
-	var changed = false;
-
-	var currentVersion = entry.Node["version"]?.GetValue<string>() ?? throw new Exception($"Missing version for {entry.Path}");
-	if (!StringComparer.Ordinal.Equals(currentVersion, version))
-	{
-		entry.Node["version"] = version;
-		changed = true;
-	}
-
-	var sourcePackages = entry.Update["sourcePackages"] as JsonObject ?? throw new Exception($"Missing update.sourcePackages for {entry.Path}");
-	var source = entry.Source ?? throw new Exception($"Missing source for {entry.Path}");
-
-	foreach (var kvp in sourcePackages)
-	{
-		var system = kvp.Key;
-		var systemPackageId = kvp.Value?.GetValue<string>() ?? throw new Exception($"Invalid source package mapping for {entry.Path}.{system}");
-		LogStep($"prefetching {system} tarball", entry.Path);
-		var tarballUrl = GetNpmTarballUrl(systemPackageId, version);
-		var tarballHash = PrefetchFileHash(tarballUrl, workingDirectory);
-
-		if (source[system] is not JsonObject systemSource)
+		foreach (var argument in arguments)
 		{
-			throw new Exception($"Missing source entry for {entry.Path}.{system}");
+			startInfo.ArgumentList.Add(argument);
 		}
-
-		var currentUrl = systemSource["url"]?.GetValue<string>() ?? throw new Exception($"Missing source url for {entry.Path}.{system}");
-		var currentHash = systemSource["hash"]?.GetValue<string>() ?? throw new Exception($"Missing source hash for {entry.Path}.{system}");
-		if (!StringComparer.Ordinal.Equals(currentUrl, tarballUrl))
+		using var process = Process.Start(startInfo) ?? throw new Exception($"Failed to start {file}");
+		var stdout = capture ? process.StandardOutput.ReadToEndAsync() : Task.FromResult("");
+		await process.WaitForExitAsync();
+		var result = await stdout;
+		if (process.ExitCode != 0)
 		{
-			systemSource["url"] = tarballUrl;
-			changed = true;
+			throw new Exception($"Command failed ({process.ExitCode}): {file} {string.Join(" ", arguments)}");
 		}
-
-		if (!StringComparer.Ordinal.Equals(currentHash, tarballHash))
-		{
-			systemSource["hash"] = tarballHash;
-			changed = true;
-		}
+		return result;
 	}
-
-	return changed;
 }
-
-static bool ApplyPyPiReleaseUpdate(DependencyEntry entry, string workingDirectory)
-{
-	var packageId = entry.Update["packageId"]?.GetValue<string>() ?? entry.Path;
-	var packageType = entry.Update["packageType"]?.GetValue<string>() ?? "sdist";
-	var release = GetLatestPyPiRelease(entry.Update, packageId, packageType);
-	var source = entry.Source ?? throw new Exception($"Missing source for {entry.Path}");
-	var changed = false;
-
-	var currentVersion = entry.Node["version"]?.GetValue<string>() ?? throw new Exception($"Missing version for {entry.Path}");
-	if (!StringComparer.Ordinal.Equals(currentVersion, release.Version))
-	{
-		entry.Node["version"] = release.Version;
-		changed = true;
-	}
-
-	var currentUrl = source["url"]?.GetValue<string>() ?? throw new Exception($"Missing source.url for {entry.Path}");
-	if (!StringComparer.Ordinal.Equals(currentUrl, release.Url))
-	{
-		source["url"] = release.Url;
-		changed = true;
-	}
-
-	var releaseHash = PrefetchFileHash(release.Url, workingDirectory);
-	var currentHash = source["hash"]?.GetValue<string>() ?? throw new Exception($"Missing source.hash for {entry.Path}");
-	if (!StringComparer.Ordinal.Equals(currentHash, releaseHash))
-	{
-		source["hash"] = releaseHash;
-		changed = true;
-	}
-
-	return changed;
-}
-
-static PyPiRelease GetLatestPyPiRelease(JsonObject update, string packageId, string packageType)
-{
-	var metadata = GetJsonObject(GetPyPiPackageMetadataUrl(packageId));
-	var info = metadata["info"] as JsonObject ?? throw new Exception($"Expected info object for PyPI package {packageId}");
-	var version = info["version"]?.GetValue<string>() ?? throw new Exception($"Missing info.version for PyPI package {packageId}");
-	var urls = metadata["urls"] as JsonArray ?? throw new Exception($"Expected urls array for PyPI package {packageId}");
-	var releaseFile = urls
-		.Select(x => x as JsonObject)
-		.FirstOrDefault(x => StringComparer.Ordinal.Equals(x?["packagetype"]?.GetValue<string>(), packageType));
-
-	if (releaseFile is null)
-	{
-		throw new Exception($"Could not find a '{packageType}' distribution for PyPI package {packageId}@{version}");
-	}
-
-	var url = releaseFile["url"]?.GetValue<string>() ?? throw new Exception($"Missing distribution url for PyPI package {packageId}@{version}");
-	return new PyPiRelease(version, url);
-}
-
-static string GetLatestNpmPackageVersion(JsonObject update, string packageId)
-{
-	var distTag = update["distTag"]?.GetValue<string>() ?? "latest";
-	var metadata = GetJsonObject(GetNpmPackageMetadataUrl(packageId));
-	var distTags = metadata["dist-tags"] as JsonObject ?? throw new Exception($"Expected dist-tags for npm package {packageId}");
-	return distTags[distTag]?.GetValue<string>() ?? throw new Exception($"Could not find npm dist-tag '{distTag}' for {packageId}");
-}
-
-static string GetNpmTarballUrl(string packageId, string version)
-{
-	var metadata = GetJsonObject(GetNpmPackageMetadataUrl(packageId));
-	var versions = metadata["versions"] as JsonObject ?? throw new Exception($"Expected versions object for npm package {packageId}");
-	var versionMetadata = versions[version] as JsonObject ?? throw new Exception($"Could not find npm version {version} for {packageId}");
-	return versionMetadata["dist"]?["tarball"]?.GetValue<string>() ?? throw new Exception($"Could not find tarball URL for {packageId}@{version}");
-}
-
-static string GetNpmPackageMetadataUrl(string packageId)
-{
-	return $"{NpmRegistryUrl}/{Uri.EscapeDataString(packageId)}";
-}
-
-static string GetPyPiPackageMetadataUrl(string packageId)
-{
-	return $"{PyPiRegistryUrl}/{Uri.EscapeDataString(packageId)}/json";
-}
-
-static string GetNuGetPackageBaseAddress()
-{
-	var serviceIndex = GetJsonObject(NuGetServiceIndexUrl);
-	var resources = serviceIndex["resources"] as JsonArray ?? throw new Exception("Expected NuGet service index resources array");
-	var packageBaseAddress = resources
-		.Select(x => x as JsonObject)
-		.FirstOrDefault(x => x?["@type"]?.GetValue<string>()?.StartsWith("PackageBaseAddress/", StringComparison.Ordinal) == true)?["@id"]?.GetValue<string>();
-
-	return packageBaseAddress ?? throw new Exception("Could not find NuGet PackageBaseAddress resource");
-}
-
-static JsonObject GetJsonObject(string url)
-{
-	using var httpClient = new HttpClient();
-	using var request = new HttpRequestMessage(HttpMethod.Get, url);
-	using var response = httpClient.Send(request);
-	response.EnsureSuccessStatusCode();
-	var content = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-	return JsonNode.Parse(content) as JsonObject ?? throw new Exception($"Expected JSON object from {url}");
-}
-
-static string GetVersionFromTag(string tag, JsonObject? update)
-{
-	if (update?["version"] is not JsonObject version)
-	{
-		return tag;
-	}
-
-	var stripPrefix = version["stripPrefix"]?.GetValue<string>();
-	if (!string.IsNullOrEmpty(stripPrefix) && tag.StartsWith(stripPrefix, StringComparison.Ordinal))
-	{
-		return tag[stripPrefix.Length..];
-	}
-
-	return tag;
-}
-
-static PrefetchedSource PrefetchSource(JsonObject source, string workingDirectory)
-{
-	var owner = Uri.EscapeDataString(source["owner"]?.GetValue<string>() ?? throw new Exception("Missing source.owner"));
-	var repo = Uri.EscapeDataString(source["repo"]?.GetValue<string>() ?? throw new Exception("Missing source.repo"));
-	var rev = Uri.EscapeDataString(source["rev"]?.GetValue<string>() ?? throw new Exception("Missing source.rev"));
-	var url = $"https://github.com/{owner}/{repo}/archive/{rev}.tar.gz";
-	var output = RunAndCapture("nix", ["store", "prefetch-file", "--json", "--unpack", url], workingDirectory);
-	var json = JsonNode.Parse(output) as JsonObject ?? throw new Exception("Expected prefetch output to be a JSON object");
-	return new PrefetchedSource(
-		json["hash"]?.GetValue<string>() ?? throw new Exception($"Missing hash in prefetch output for {url}"),
-		json["storePath"]?.GetValue<string>() ?? throw new Exception($"Missing storePath in prefetch output for {url}"));
-}
-
-static string PrefetchFileHash(string url, string workingDirectory)
-{
-	var output = RunAndCapture("nix", ["store", "prefetch-file", "--json", url], workingDirectory);
-	var json = JsonNode.Parse(output) as JsonObject ?? throw new Exception("Expected prefetch output to be a JSON object");
-	return json["hash"]?.GetValue<string>() ?? throw new Exception($"Missing hash in prefetch output for {url}");
-}
-
-static string ResolveHashField(string repoRoot, string packageRoot, DependencyEntry entry, string field, string depsFile, JsonObject data, string? prefetchedSourcePath)
-{
-	return field switch
-	{
-		"npmDepsHash" when prefetchedSourcePath is not null => ResolveNpmDepsHash(entry, prefetchedSourcePath, repoRoot),
-		_ => ResolveBuildHash(repoRoot, packageRoot, entry, field, depsFile, data),
-	};
-}
-
-static string ResolveNpmDepsHash(DependencyEntry entry, string sourceRoot, string workingDirectory)
-{
-	LogStep("prefetching npm dependencies", entry.Path);
-	var lockfilePath = GetNpmLockfilePath(entry, sourceRoot);
-	var executable = GetPrefetchNpmDepsExecutable(workingDirectory);
-	var environment = GetNpmDepsPrefetchEnvironment(entry);
-	return RunAndCapture(executable, [lockfilePath], workingDirectory, environment).Trim();
-}
-
-static IReadOnlyDictionary<string, string> GetNpmDepsPrefetchEnvironment(DependencyEntry entry)
-{
-	if (entry.Update["npmDepsFetcherVersion"] is JsonValue version)
-	{
-		return new Dictionary<string, string>
-		{
-			["NPM_FETCHER_VERSION"] = version.GetValue<int>().ToString(System.Globalization.CultureInfo.InvariantCulture),
-		};
-	}
-
-	return new Dictionary<string, string>();
-}
-
-static string GetNpmLockfilePath(DependencyEntry entry, string sourceRoot)
-{
-	if (entry.Update["lockfile"] is JsonValue lockfileValue)
-	{
-		var lockfilePath = Path.Combine(sourceRoot, lockfileValue.GetValue<string>());
-		if (File.Exists(lockfilePath))
-		{
-			return lockfilePath;
-		}
-
-		throw new Exception($"Configured npm lockfile was not found for {entry.Path}: {lockfilePath}");
-	}
-
-	foreach (var candidate in new[] {"package-lock.json", "npm-shrinkwrap.json"})
-	{
-		var candidatePath = Path.Combine(sourceRoot, candidate);
-		if (File.Exists(candidatePath))
-		{
-			return candidatePath;
-		}
-	}
-
-	throw new Exception($"Could not find an npm lockfile for {entry.Path}. Set update.lockfile to the relative path if it is not at the repository root.");
-}
-
-static string GetPrefetchNpmDepsExecutable(string workingDirectory)
-{
-	var packagePath = RunAndCapture("nix", ["build", "nixpkgs#prefetch-npm-deps", "--no-link", "--print-out-paths"], workingDirectory).Trim();
-	var executable = Path.Combine(packagePath, "bin", "prefetch-npm-deps");
-	if (!File.Exists(executable))
-	{
-		throw new Exception($"Could not find prefetch-npm-deps executable in {packagePath}");
-	}
-
-	return executable;
-}
-
-static string ResolveBuildHash(string repoRoot, string packageRoot, DependencyEntry entry, string field, string depsFile, JsonObject data)
-{
-	entry.Node[field] = FakeHash;
-	WriteDependencies(depsFile, data);
-
-	LogStep($"running nix build for {field}", entry.Path);
-	var result = RunProcess("nix", ["build", $"{packageRoot}.{entry.PackageAttr}", "--no-link"], repoRoot);
-	if (result.ExitCode == 0)
-	{
-		throw new Exception($"Expected nix build to report a replacement hash for {entry.Path}.{field}, but the build succeeded");
-	}
-
-	var resolvedHash = ExtractHash(result.StdOut + Environment.NewLine + result.StdErr);
-	if (resolvedHash is null)
-	{
-		throw new Exception($"Could not extract replacement hash for {entry.Path}.{field}{Environment.NewLine}{result.StdErr}".TrimEnd());
-	}
-
-	return resolvedHash;
-}
-
-static void LogStep(string action, string path)
-{
-	Console.WriteLine($"{action}: {path}");
-}
-
-static string? ExtractHash(string text)
-{
-	var match = Regex.Match(text, @"got:\s*(sha256-[A-Za-z0-9+/=]+|[0-9a-z]{52})", RegexOptions.Multiline);
-	return match.Success ? match.Groups[1].Value : null;
-}
-
-static string GetPackageRoot()
-{
-	return $".#packages.{GetNixSystem()}";
-}
-
-static string GetNixSystem()
-{
-	var arch = RuntimeInformation.ProcessArchitecture switch
-	{
-		Architecture.Arm64 => "aarch64",
-		Architecture.X64 => "x86_64",
-		_ => throw new Exception($"Unsupported architecture: {RuntimeInformation.ProcessArchitecture}"),
-	};
-
-	if (OperatingSystem.IsMacOS())
-	{
-		return $"{arch}-darwin";
-	}
-
-	if (OperatingSystem.IsLinux())
-	{
-		return $"{arch}-linux";
-	}
-
-	throw new Exception("update-dependencies is only supported on macOS and Linux");
-}
-
-static void WriteDependencies(string depsFile, JsonObject data)
-{
-	File.WriteAllText(depsFile, Render(data) + Environment.NewLine, new UTF8Encoding(false));
-}
-
-static ProcessResult RunProcess(
-	string fileName,
-	IReadOnlyList<string> arguments,
-	string workingDirectory,
-	IReadOnlyDictionary<string, string>? environment = null)
-{
-	var psi = new ProcessStartInfo(fileName)
-	{
-		RedirectStandardOutput = true,
-		RedirectStandardError = true,
-		UseShellExecute = false,
-		WorkingDirectory = workingDirectory,
-	};
-
-	foreach (var argument in arguments)
-	{
-		psi.ArgumentList.Add(argument);
-	}
-
-	if (environment is not null)
-	{
-		foreach (var kvp in environment)
-		{
-			psi.Environment[kvp.Key] = kvp.Value;
-		}
-	}
-
-	using var process = Process.Start(psi) ?? throw new Exception($"Failed to start {fileName}");
-	var stdout = process.StandardOutput.ReadToEnd();
-	var stderr = process.StandardError.ReadToEnd();
-	process.WaitForExit();
-	return new ProcessResult(process.ExitCode, stdout, stderr);
-}
-
-static string RunAndCapture(
-	string fileName,
-	IReadOnlyList<string> arguments,
-	string workingDirectory,
-	IReadOnlyDictionary<string, string>? environment = null)
-{
-	var result = RunProcess(fileName, arguments, workingDirectory, environment);
-	if (result.ExitCode != 0)
-	{
-		throw new Exception($"Command failed: {fileName} {string.Join(" ", arguments)}{Environment.NewLine}{result.StdErr}".TrimEnd());
-	}
-
-	return result.StdOut;
-}
-
-static string Render(JsonNode? node, int indent = 0)
-{
-	return node switch
-	{
-		JsonObject obj => RenderObject(obj, indent),
-		JsonArray array => RenderArray(array, indent),
-		JsonValue value => RenderValue(value),
-		null => "null",
-		_ => throw new NotSupportedException($"Unsupported JSON node type: {node.GetType().Name}"),
-	};
-}
-
-static string RenderObject(JsonObject obj, int indent)
-{
-	if (obj.Count == 0)
-	{
-		return "{}";
-	}
-
-	var pad = new string(' ', indent + 2);
-	var closingPad = new string(' ', indent);
-	var lines = new List<string> {"{"};
-
-	foreach (var kvp in obj)
-	{
-		lines.Add($"{pad}{RenderAttrName(kvp.Key)} = {Render(kvp.Value, indent + 2)};");
-	}
-
-	lines.Add($"{closingPad}}}");
-	return string.Join(Environment.NewLine, lines);
-}
-
-static string RenderArray(JsonArray array, int indent)
-{
-	if (array.Count == 0)
-	{
-		return "[]";
-	}
-
-	var pad = new string(' ', indent + 2);
-	var closingPad = new string(' ', indent);
-	var lines = new List<string> {"["};
-
-	foreach (var item in array)
-	{
-		lines.Add($"{pad}{Render(item, indent + 2)}");
-	}
-
-	lines.Add($"{closingPad}]");
-	return string.Join(Environment.NewLine, lines);
-}
-
-static string RenderValue(JsonValue value)
-{
-	if (value.TryGetValue<string>(out var stringValue))
-	{
-		return RenderString(stringValue);
-	}
-
-	if (value.TryGetValue<bool>(out var boolValue))
-	{
-		return boolValue ? "true" : "false";
-	}
-
-	if (value.TryGetValue<int>(out var intValue))
-	{
-		return intValue.ToString(System.Globalization.CultureInfo.InvariantCulture);
-	}
-
-	if (value.TryGetValue<long>(out var longValue))
-	{
-		return longValue.ToString(System.Globalization.CultureInfo.InvariantCulture);
-	}
-
-	if (value.TryGetValue<decimal>(out var decimalValue))
-	{
-		return decimalValue.ToString(System.Globalization.CultureInfo.InvariantCulture);
-	}
-
-	if (value.TryGetValue<double>(out var doubleValue))
-	{
-		return doubleValue.ToString(System.Globalization.CultureInfo.InvariantCulture);
-	}
-
-	if (value.TryGetValue<JsonElement>(out var element))
-	{
-		return element.GetRawText();
-	}
-
-	throw new NotSupportedException($"Unsupported JSON value type: {value}");
-}
-
-static string RenderAttrName(string name)
-{
-	return Regex.IsMatch(name, @"^[A-Za-z_][A-Za-z0-9_-]*$")
-		? name
-		: RenderString(name);
-}
-
-static string RenderString(string value)
-{
-	var escaped = value
-		.Replace("\\", "\\\\", StringComparison.Ordinal)
-		.Replace("\"", "\\\"", StringComparison.Ordinal)
-		.Replace("\n", "\\n", StringComparison.Ordinal)
-		.Replace("\r", "\\r", StringComparison.Ordinal)
-		.Replace("\t", "\\t", StringComparison.Ordinal)
-		.Replace("${", "\\${", StringComparison.Ordinal);
-
-	return $"\"{escaped}\"";
-}
-
-sealed record DependencyEntry(string Path, JsonObject Node, JsonObject? Source, JsonObject Update)
-{
-	public string PackageAttr => Update["packageAttr"]?.GetValue<string>() ?? Path;
-
-	public IReadOnlyList<string> HashFields =>
-		Update["hashFields"] is JsonArray hashFields
-			? hashFields.Select(x => x?.GetValue<string>() ?? throw new Exception($"Invalid hash field for {Path}")).ToList()
-			: [];
-}
-
-sealed record PyPiRelease(string Version, string Url);
-
-sealed record PrefetchedSource(string Hash, string StorePath);
-
-sealed record ProcessResult(int ExitCode, string StdOut, string StdErr);
-
-sealed record UpstreamAvailability(bool Available, IReadOnlyList<IReadOnlyList<string>> Candidates);

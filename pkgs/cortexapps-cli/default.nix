@@ -1,6 +1,6 @@
 {
   dependencies,
-  fetchurl,
+  fetchPypi,
   lib,
   python3Packages,
 }: let
@@ -11,8 +11,10 @@ in
     inherit (dep) version;
     pyproject = true;
 
-    src = fetchurl {
-      inherit (dep.source) hash url;
+    src = fetchPypi {
+      pname = "cortexapps_cli";
+      inherit (dep) version;
+      inherit (dep.source) hash;
     };
 
     build-system = with python3Packages; [poetry-core];

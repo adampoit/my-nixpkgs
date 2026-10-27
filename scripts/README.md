@@ -1,65 +1,60 @@
 # Scripts
 
-Utility scripts for maintaining `my-nixpkgs`.
+## Dependency updates
 
-## update-dependencies.cs
-
-Refresh the stored source hashes and updater-managed metadata in `pkgs/dependencies.nix`.
-
-### Usage
+Requires .NET 10. Run from the repository root:
 
 ```bash
-./scripts/update-dependencies.cs [dependency-path...]
+nix develop --command dotnet run --file scripts/update-dependencies.cs --
+nix develop --command dotnet run --file scripts/update-dependencies.cs -- octoscope playwright-cli
 ```
 
-**Examples:**
+The runner selects packages and update policies; [nix-update](https://github.com/Mic92/nix-update) discovers releases and edits versions, revisions, source hashes, and dependency hashes. It never commits or pushes changes. A failed package does not stop checks of the remaining packages, but the runner exits unsuccessfully if any update fails.
+
+### Package layout
+
+- `pkgs/<name>/sources.nix` contains one dependency's pins and update policy.
+- `pkgs/dependencies.nix` imports those files, preserving the metadata consumed by package definitions and `lib.neovimPlugins` / `lib.weztermPlugins`.
+- `legacyPackages.<system>.updateTargets` exposes derivations for nix-update. Plugin metadata and the `skills-ref` subdirectory use full-repository source targets; NuGet tools use their actual package downloads.
+
+Each nix-update invocation specifies `--override-filename` to select the corresponding `sources.nix`. Do not combine multiple packages' mutable pins in one file: nix-update uses textual replacement.
+
+For example, to refresh Octoscope's hashes without changing its version:
 
 ```bash
-# Refresh all managed entries
-./scripts/update-dependencies.cs
-
-# Refresh a single package source
-./scripts/update-dependencies.cs playwright-cli
-
-# Refresh a single package with an update strategy
-./scripts/update-dependencies.cs gh-workflow-stats
+nix develop --command nix-update \
+  legacyPackages.aarch64-darwin.updateTargets.octoscope \
+  --flake --system aarch64-darwin \
+  --override-filename pkgs/octoscope/sources.nix --version=skip
 ```
 
-On macOS and Linux, this works as a file-based app via the shebang in `scripts/update-dependencies.cs`.
+Use your current system in place of `aarch64-darwin`. The runner chooses it automatically unless passed `--system`.
 
-### What It Does
+### Update policies
 
-- Evaluates `pkgs/dependencies.nix`
-- Warns when a selected dependency appears to be available in the locked upstream `nixpkgs`
-- Applies any declared `update.strategy` before refreshing hashes
-- Finds entries with `source.owner`, `source.repo`, `source.rev`, and `source.hash`
-- Re-prefetches each GitHub archive and rewrites the stored `source.hash` when it changes
-- Recomputes any declared dependent hashes such as `vendorHash` or `npmDepsHash`
+- `github-release` and `pypi-release`: let nix-update discover the latest stable version.
+- `github-branch`: pass `--version=branch=<branch>` (default `main`). Where a stored version exists, nix-update may also advance it to an unstable snapshot version.
+- `nuget-release`: the C# runner discovers the latest stable NuGet version, respecting `update.version.prefix`. nix-update edits the version and refreshes every declared platform's hash, even when the version is unchanged. All platform downloads use the current system's fetchers; no cross-platform builder is required.
+- `manual`: skip the dependency, including when explicitly selected.
 
-### Update Strategies
+NuGet discovery is the only registry-specific helper: nix-update does not currently discover NuGet releases. No custom hash extraction, build-error parsing, or Nix serialization is maintained here.
 
-- `github-release`: query `gh` for the latest GitHub release, update `version` and `source.rev`, then refresh dependent hashes
-- `github-branch`: query `gh` for the latest commit on a configured branch, update `source.rev`, then refresh the source hash
-- `nuget-release`: query the NuGet V3 API for the latest stable package version, update `version`, then refresh dependent hashes
-- `npm-registry-release`: query the npm registry for the latest package version, update `version`, and refresh configured tarball URLs and hashes
-- `pypi-release`: query the PyPI JSON API for the latest release, update `version`, `source.url`, and `source.hash`
-- `manual`: require explicit updater metadata for packages that are not automatically advanced by the script
+The upstream availability check remains available at `.#lib.upstreamAvailability.<system>`. `update.upstream.ignore = true` excludes intentionally out-of-tree packages from that check.
 
-### Upstream nixpkgs Checks
+### Formatting
 
-- By default, each selected dependency is matched against likely upstream attributes in the relevant scope (`pkgs` or `pkgs.vimPlugins`) using normalized package names.
-- Set `update.upstream.ignore = true;` when you intentionally want to keep maintaining an out-of-tree package even though nixpkgs already has one.
-- The upstream availability data is exposed for manual inspection as `.#lib.upstreamAvailability.<system>`.
+```bash
+nix develop --command alejandra pkgs flake.nix
+```
 
-### Notes
+## Scheduled updates
 
-- Hash recomputation builds `packages.<current-system>.<packageAttr>` from this flake.
-- Every top-level package entry in `pkgs/dependencies.nix` must define `update.strategy`.
-- Entries with `strategy = "manual"` are validated and accepted by the script but left unchanged.
-- The upstream availability warning only runs for the entries selected by the command-line filters.
-- NuGet entries can constrain updates with `update.version.prefix` when the package should stay on a supported release line.
-- PyPI entries default to the `sdist` artifact and can override that with `update.packageType`.
+`.github/workflows/update-dependencies.yml` runs daily. It refreshes flake inputs, runs the nix-update runner, formats package expressions, and syncs upstream-package issues. Changes to either `flake.lock` or `pkgs/` open or refresh the dependency pull request. Package builds remain gated by the Linux/macOS CI workflow.
 
-## Scheduled Updates
+## sync-upstream-issues.cs
 
-`.github/workflows/update-dependencies.yml` runs on a weekly cron, refreshes the locked `nixpkgs` input, opens a pull request only when `pkgs/dependencies.nix` changes, includes the corresponding `flake.lock` update in that pull request, and syncs per-package issues for dependencies that now appear to exist in upstream nixpkgs.
+Maintains per-package issues for packages that appear to exist in upstream nixpkgs. Requires .NET 10 and `gh` authentication.
+
+```bash
+./scripts/sync-upstream-issues.cs --dry-run
+```

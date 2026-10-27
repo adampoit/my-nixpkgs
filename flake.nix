@@ -85,6 +85,14 @@
         });
     };
 
+    legacyPackages = forEachSystem (system: {
+      updateTargets = import ./pkgs/update-targets.nix {
+        pkgs = mkPkgs system;
+        inherit dependencies;
+        pluginNames = neovimPluginNames ++ weztermPluginNames;
+      };
+    });
+
     overlays.default = import ./pkgs/overlay.nix {
       inherit cielo googleworkspace-cli wezterm-fork;
     };
@@ -98,6 +106,8 @@
         default = pkgs.mkShell {
           packages = [
             pkgs.actionlint
+            pkgs.alejandra
+            pkgs.nix-update
           ];
         };
       }

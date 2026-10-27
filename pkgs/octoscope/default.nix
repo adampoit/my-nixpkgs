@@ -2,7 +2,6 @@
   buildGoModule,
   dependencies,
   fetchFromGitHub,
-  go_1_25,
   lib,
 }: let
   dep = dependencies.octoscope;
@@ -10,7 +9,6 @@ in
   buildGoModule rec {
     pname = "octoscope";
     inherit (dep) version vendorHash;
-    go = go_1_25;
 
     src = fetchFromGitHub dep.source;
     ldflags = ["-s" "-w" "-X" "main.version=${version}"];

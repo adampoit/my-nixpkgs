@@ -7,7 +7,8 @@
   dep = dependencies.vscode-firefox-debug;
 in
   buildNpmPackage {
-    name = "vscode-firefox-debug";
+    pname = "vscode-firefox-debug";
+    inherit (dep) version;
 
     src = fetchFromGitHub dep.source;
 
