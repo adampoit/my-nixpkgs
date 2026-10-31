@@ -1,13 +1,13 @@
 {
-  npmDepsHash = "sha256-mGD7a/v1cx/xPGZo8nN3WA40mYGgF/KzMKiGbvUeX4E=";
+  npmDepsHash = "sha256-GQjH0Zwf9cYuuM6m4mM2Xwz6qWuJTsXsj0nCSm71BlY=";
   source = {
-    hash = "sha256-80xzHvf7BHGvoKvMdkGeNUsUrpZrpw5eryuQM8NKT/E=";
+    hash = "sha256-MqeB9U8676YOlB6JbX5Dcp2PeWftQcmbTUPp9dS5t+U=";
     owner = "microsoft";
     repo = "playwright-cli";
-    rev = "v0.1.22";
+    rev = "v0.1.23";
   };
   update = {
     strategy = "github-release";
   };
-  version = "0.1.22";
+  version = "0.1.23";
 }
